@@ -9,15 +9,19 @@ use yii\web\AssetBundle;
  */
 class AppAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
+//     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-        'css/site.css',
+//         'css/site.css',
+        'css/amazeui.min.css',
+        'css/style.css'
     ];
     public $js = [
+        'js/jquery.min.js',
+        'js/amazeui.min.js'
     ];
     public $depends = [
-        'yii\web\YiiAsset',
-        'yii\bootstrap\BootstrapAsset',
+        /* 'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset', */
     ];
 }
