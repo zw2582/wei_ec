@@ -11,9 +11,15 @@ return [
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'frontend\controllers',
+    'defaultRoute' => 'demo/index',
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',
+        ],
+        'weiauthor' => [
+            'class'=>'frontend\models\WeiAuthor',
+            'appid'=>'wx42f761126784f81c',
+            'redirect_uri'=>'http://dev.app.weiec.com/demo/index',
         ],
         'user' => [
             'identityClass' => 'common\models\User',

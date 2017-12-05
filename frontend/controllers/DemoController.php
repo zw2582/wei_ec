@@ -3,7 +3,7 @@ namespace frontend\controllers;
 
 use yii\web\Controller;
 
-class DemoController extends Controller {
+class DemoController extends BasicController {
     
     //首页
     public function actionIndex() {
