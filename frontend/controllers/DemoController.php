@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use common\controllers\BasicController;
 use yii\web\Controller;
 
 class DemoController extends BasicController {
@@ -8,6 +9,13 @@ class DemoController extends BasicController {
     //首页
     public function actionIndex() {
         return $this->render('index');
+    }
+    
+    public function actionTest() {
+        $persons = new Person2();
+        foreach ($persons as $a) {
+            var_dump($a);
+        }
     }
     
     //收货地址
