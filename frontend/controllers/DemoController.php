@@ -12,6 +12,14 @@ class DemoController extends BasicController {
     }
     
     public function actionTest() {
+        try {
+            throw  new \Exception('自定义错误', '206', new \Exception('nidaye'));
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+        
+        
+        die;
         $persons = new Person2();
         foreach ($persons as $a) {
             var_dump($a);
