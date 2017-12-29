@@ -143,7 +143,9 @@ EOF;
         } catch (\Exception $e) {
             return;
         }
-        
+    }
+    
+    public function actionCounter() {
     }
 }
 

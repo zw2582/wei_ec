@@ -13,7 +13,9 @@ class AuthController extends BasicController{
         if (!parent::beforeAction($action)) {
             return false;
         }
-        
+        if (\Yii::$app->user->isGuest) {
+            \Yii::$app->weiauthor->login();
+        }
         return true;
     }
 }

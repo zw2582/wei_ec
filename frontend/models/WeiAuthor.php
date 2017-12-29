@@ -51,7 +51,10 @@ class WeiAuthor extends Component{
         
         \Yii::info('获取accessToken网页授权:'.$link);
         $curl = new Curl();
-        $response = $curl->get($link);
+        $response = $curl->setOptions([
+            CURLOPT_SSL_VERIFYPEER=>0,
+            CURLOPT_SSL_VERIFYHOST=>0
+        ])->get($link);
         if ($curl->responseCode == 200) {
             return [$response['access_token'], $response['openid']];
         } else {
@@ -69,7 +72,10 @@ class WeiAuthor extends Component{
         $link = sprintf($link, $accessToken, $openId);
         \Yii::info(sprintf('根据access_token获取用户信息:%s', $link), __METHOD__);
         $curl = new Curl();
-        $response = $curl->get($link);
+        $response = $curl->setOptions([
+            CURLOPT_SSL_VERIFYPEER=>0,
+            CURLOPT_SSL_VERIFYHOST=>0
+        ])->get($link);
         if ($curl->responseCode != 200) {
             throw new UserException('据access_token获取用户信息失败:'.$response);
         }
