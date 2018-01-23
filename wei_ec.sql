@@ -263,7 +263,7 @@ DROP TABLE IF EXISTS `supplier`;
 CREATE TABLE `supplier` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT '店铺名称',
-  `tag` varchar(32) NOT NULL COMMENT '店铺表示，系统设置',
+  `tag` varchar(32) NOT NULL DEFAULT '' COMMENT '店铺表示，系统设置',
   `province` varchar(32) NOT NULL COMMENT '所在省编码',
   `city` varchar(32) NOT NULL COMMENT '所在市编码',
   `address` varchar(255) NOT NULL COMMENT '详细地址',
@@ -377,3 +377,4 @@ CREATE TABLE `user` (
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+

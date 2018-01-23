@@ -15,6 +15,22 @@ class TestController extends BasicController{
     public $enableCsrfValidation = false;
     
     public function actionIndex() {
+        $file = 'D:\tools\1.txt';
+        $handle1 = fopen($file, 'wb');
+        if (flock($handle1, LOCK_EX)) {
+            echo 'lock success1';
+        }
+        
+//         $handle2 = fopen($file, 'wb');
+//         if (flock($handle2, LOCK_EX)) {
+//             echo 'lock success2';
+//         }
+        
+        fwrite($handle1, "cacasdsds");
+//         fwrite($handle2, "23434234");
+        
+        var_dump($handle1, $handle2);
+        die;
         $person = new Person();
         
         $person['name'] = 'caca';

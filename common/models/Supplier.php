@@ -37,7 +37,7 @@ class Supplier extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'tag', 'province', 'city', 'address', 'user_id'], 'required'],
+            [['name', 'province', 'city', 'address', 'user_id'], 'required'],
             [['audit_status', 'user_id', 'status'], 'integer'],
             [['create_time'], 'safe'],
             [['name', 'address'], 'string', 'max' => 255],

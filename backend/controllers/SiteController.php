@@ -6,6 +6,8 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
+use common\models\Supplier;
+use backend\modules\product\models\ProductForm;
 
 /**
  * Site controller
@@ -26,7 +28,7 @@ class SiteController extends Controller
                         'allow' => true,
                     ],
                     [
-                        'actions' => ['logout', 'index'],
+                        'actions' => ['logout', 'index', 'regist','test'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -95,4 +97,17 @@ class SiteController extends Controller
 
         return $this->goHome();
     }
+    
+    /**
+     * 注册一个供应商
+     * 
+     * wei.w.zhou@integle.com
+     * 2018年1月22日下午3:53:14
+     */
+    public function actionRegist() {
+        if (empty($_POST)) {
+            return $this->render('regist');
+        }
+    }
+    
 }

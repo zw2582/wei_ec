@@ -11,14 +11,18 @@ return [
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
-    'modules' => [],
+    'modules' => require('modules.php'),
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',
+            'parsers'=> [
+                'application/json' => 'yii\web\JsonParser',
+             ]
         ],
         'user' => [
+            'class'=>'common\models\SessionUser',
             'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
+            'enableAutoLogin' => FALSE,
             'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
         'session' => [
@@ -42,7 +46,7 @@ return [
             'showScriptName' => false,
             'rules' => [
             ],
-        ],
+        ]
     ],
     'params' => $params,
 ];
