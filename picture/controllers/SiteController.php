@@ -28,6 +28,8 @@ class SiteController extends Controller {
     /**
      * 获取图片原图
      * 
+     * @example http://dev.picture.integle.com/site/index?src=0002_50_50_1.jpg
+     * 0002:子路径，50_50_1.jpg为文件名
      * @param src 0002_10_20_1.jpg
      * wei.w.zhou@integle.com
      * 2017年12月8日下午8:14:23

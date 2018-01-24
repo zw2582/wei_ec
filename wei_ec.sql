@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 DROP TABLE IF EXISTS `log_order`;
 CREATE TABLE `log_order` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `order_num` char(15) NOT NULL COMMENT '订单号',
   `type` tinyint(1) unsigned NOT NULL COMMENT '类型 1.支付 2.发货 3.确认收货 4.申请退货 5.退货完成',
   `description` varchar(255) NOT NULL COMMENT '描述',
@@ -35,7 +35,7 @@ CREATE TABLE `log_order` (
 -- ----------------------------
 DROP TABLE IF EXISTS `log_o_product`;
 CREATE TABLE `log_o_product` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `o_product_id` int(10) NOT NULL COMMENT '订单号',
   `type` tinyint(1) unsigned NOT NULL COMMENT '类型 1.编辑',
   `description` varchar(255) NOT NULL COMMENT '描述',
@@ -50,7 +50,7 @@ CREATE TABLE `log_o_product` (
 -- ----------------------------
 DROP TABLE IF EXISTS `log_o_return`;
 CREATE TABLE `log_o_return` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `return_num` char(15) NOT NULL COMMENT '订单号',
   `type` tinyint(1) unsigned NOT NULL COMMENT '类型 1.商家确认 2.重新申请 3.用户发货 4.商家收货 5.商家退款',
   `description` varchar(255) NOT NULL COMMENT '描述',
@@ -137,7 +137,7 @@ CREATE TABLE `o_deliver` (
 -- ----------------------------
 DROP TABLE IF EXISTS `o_payment`;
 CREATE TABLE `o_payment` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `order_num` char(15) NOT NULL COMMENT '订单号',
   `serival_num` varchar(32) NOT NULL COMMENT '支付流水号',
   `pay_type` varchar(32) NOT NULL COMMENT '支付类型 wx',
@@ -171,7 +171,7 @@ CREATE TABLE `o_product` (
 -- ----------------------------
 DROP TABLE IF EXISTS `o_return`;
 CREATE TABLE `o_return` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `return_num` char(15) NOT NULL COMMENT '退货款单号',
   `order_num` char(15) NOT NULL,
   `price` int(10) NOT NULL DEFAULT '0' COMMENT '协议退款金额',
@@ -203,7 +203,7 @@ CREATE TABLE `o_return_char` (
 -- ----------------------------
 DROP TABLE IF EXISTS `o_return_char_img`;
 CREATE TABLE `o_return_char_img` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `o_r_char_id` int(10) NOT NULL COMMENT '订单退货交谈id',
   `save_path` char(9) NOT NULL COMMENT '图片路径',
   `save_name` varchar(32) NOT NULL COMMENT '图片名称',
@@ -261,7 +261,7 @@ CREATE TABLE `o_revice` (
 -- ----------------------------
 DROP TABLE IF EXISTS `supplier`;
 CREATE TABLE `supplier` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL COMMENT '店铺名称',
   `tag` varchar(32) NOT NULL DEFAULT '' COMMENT '店铺表示，系统设置',
   `province` varchar(32) NOT NULL COMMENT '所在省编码',
@@ -323,7 +323,7 @@ CREATE TABLE `s_package_type` (
 -- ----------------------------
 DROP TABLE IF EXISTS `s_product`;
 CREATE TABLE `s_product` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `number` varchar(32) NOT NULL COMMENT '商品编号',
   `name` varchar(64) NOT NULL COMMENT '商品名称',
   `supplier_id` int(10) NOT NULL COMMENT '供应商id',
@@ -350,7 +350,7 @@ CREATE TABLE `s_product_catalog` (
 -- ----------------------------
 DROP TABLE IF EXISTS `s_product_img`;
 CREATE TABLE `s_product_img` (
-  `id` int(11) NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `product_id` int(10) unsigned NOT NULL COMMENT '产品id',
   `save_path` char(9) NOT NULL COMMENT '保存地址',
   `save_name` varchar(32) NOT NULL COMMENT '保存名称',

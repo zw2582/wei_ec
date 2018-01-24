@@ -24,6 +24,7 @@ class ProductSearch extends Model{
         
         if ($pager instanceof Pagination) {
             $pager->totalCount = $query->count();
+            $query->offset($pager->offset)->limit($pager->limit);
         }
         
         return $query->asArray()->all();

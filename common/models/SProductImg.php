@@ -29,8 +29,8 @@ class SProductImg extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'product_id', 'save_path', 'save_name', 'real_name'], 'required'],
-            [['id', 'product_id'], 'integer'],
+            [['product_id', 'save_path', 'save_name', 'real_name'], 'required'],
+            [['product_id'], 'integer'],
             [['save_path'], 'string', 'max' => 9],
             [['save_name'], 'string', 'max' => 32],
             [['real_name'], 'string', 'max' => 255],

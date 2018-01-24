@@ -6,6 +6,9 @@ use common\models\SProduct;
 use yii\data\Pagination;
 use backend\modules\product\models\ProductForm;
 use backend\modules\product\models\ProductSearch;
+use yii\web\UploadedFile;
+use yii\validators\FileValidator;
+use backend\modules\product\models\ProductImageForm;
 
 /**
  * 商品控制器
@@ -42,6 +45,12 @@ class ProductController extends AuthController{
      *  name:xxx,
      *  number:xxx,
      *  description:xxx,
+     *  catalog_id:xxx,
+     *  images:[{
+     *  &nbsp;&nbsp;save_path:xxx,
+     *  &nbsp;&nbsp;save_name:xxx,
+     *  &nbsp;&nbsp;real_name:xxx,
+     *  }],
      *  packages:[{
      *       &nbsp;&nbsp;package:xxx,
      *       &nbsp;&nbsp;package_type:xxx,
@@ -64,6 +73,42 @@ class ProductController extends AuthController{
         }
         
         return $this->ajaxSuccess(null, '新增成功');
+    }
+    
+    /**
+     * 图片保存
+     * 
+     * wei.w.zhou@integle.com
+     * 2018年1月24日下午1:46:29
+     */
+    public function actionImageUpload() {
+        $proImgForm = new ProductImageForm();
+        $proImgForm->file = UploadedFile::getInstanceByName('file');
+        if (empty($proImgForm->file)) {
+            return $this->ajaxFail('no file uploaded');
+        }
+        if (!$proImgForm->validate(['file'])) {
+            return $this->ajaxFail(current($proImgForm->getFirstErrors()));
+        }
+        //组建地址
+        $deep_path = sprintf("%04d", time() % 100);
+        $filename = uniqid().'.'.$proImgForm->file->extension;
+        $pathname = PIC_DIR.DS.$deep_path;
+        if (!is_dir($pathname)) {
+            if (!@mkdir($pathname, 775, true)) {
+                return $this->ajaxFail('创建文件夹失败');
+            }
+        }
+        \Yii::info("saveas:".$pathname.DS.$filename);
+        if (!$proImgForm->file->saveAs($pathname.DS.$filename)) {
+            return $this->ajaxFail('上传失败');
+        }
+        return $this->ajaxSuccess([
+            'deep_path'=>$deep_path,
+            'save_name'=>$filename,
+            'real_name'=>$proImgForm->file->name,
+            'pic_url'=>PIC_URL
+        ], '上传成功');
     }
 }
 

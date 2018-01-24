@@ -53,4 +53,24 @@ class SCatalog extends \yii\db\ActiveRecord
             'order' => 'Order',
         ];
     }
+    
+    /**
+     * 递归获取当前类型id的所有父类型id数组,如果当前类型不存在，则返回空数组
+     * @param unknown $catalogId
+     * @return \common\models\SCatalog[]
+     * wei.w.zhou@integle.com
+     * 2018年1月24日上午11:05:30
+     */
+    public static function findRecursiveId($catalogId) {
+        $catalog = self::findOne([$catalogId]);
+        
+        $arr = [];
+        if ($catalog) {
+            do {
+                $arr[] = $catalog['id'];
+                $catalog = self::findOne(['id'=>$catalog['parent_id']]);
+            } while($catalog);
+        }
+        return $arr;
+    }
 }
