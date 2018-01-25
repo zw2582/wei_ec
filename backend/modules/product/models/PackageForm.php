@@ -13,6 +13,8 @@ use common\models\SPackageType;
  */
 class PackageForm extends Model{
     
+    public $id;
+    
     public $package;
     
     public $package_type;
@@ -71,6 +73,7 @@ class PackageForm extends Model{
             $transaction->rollBack();
             return false;
         }
+        $this->id = $package->id;
         $transaction->commit();
         return true;
     }

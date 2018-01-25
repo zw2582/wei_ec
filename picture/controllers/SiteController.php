@@ -21,7 +21,7 @@ class SiteController extends Controller {
         ];
     }
     
-    private $default_imgpath = '';
+    private $default_imgpath = 'images/4.jpg';
     
     private $splitTag = '_';
     
@@ -38,6 +38,9 @@ class SiteController extends Controller {
         $src = \Yii::$app->request->get('src');
         if (empty($src)) {
             \Yii::error('未传递src参数', __METHOD__);
+            $this->sendDefault();
+        }
+        if (!preg_match('/[\w_]+\.\w+/', $src)) {
             $this->sendDefault();
         }
         //解析src

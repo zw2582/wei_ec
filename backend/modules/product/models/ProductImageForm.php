@@ -13,6 +13,8 @@ use yii\web\UploadedFile;
  */
 class ProductImageForm extends Model{
     
+    public $id;
+    
     public $save_path;
     
     public $save_name;
@@ -61,6 +63,7 @@ class ProductImageForm extends Model{
             $this->addErrors($proImg->getErrors());
             return false;
         }
+        $this->id = $proImg->id;
         return true;
     }
 }

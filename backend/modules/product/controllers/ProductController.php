@@ -9,6 +9,7 @@ use backend\modules\product\models\ProductSearch;
 use yii\web\UploadedFile;
 use yii\validators\FileValidator;
 use backend\modules\product\models\ProductImageForm;
+use common\models\SPackageType;
 
 /**
  * 商品控制器
@@ -109,6 +110,19 @@ class ProductController extends AuthController{
             'real_name'=>$proImgForm->file->name,
             'pic_url'=>PIC_URL
         ], '上传成功');
+    }
+    
+    /**
+     * 列出规格类型
+     * 
+     * wei.w.zhou@integle.com
+     * 2018年1月25日下午1:53:52
+     */
+    public function actionListPackageType() {
+        $names = SPackageType::find()->select('name')
+        ->where(['user_id'=>$this->userId])->asArray()->column();
+        
+        return $this->ajaxSuccess($names);
     }
 }
 

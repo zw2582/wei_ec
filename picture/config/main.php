@@ -41,7 +41,7 @@ return [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'GET <src:[\d_]+\.\w+>'=>'site/index'
+                'GET <src:[\w_\.]+>'=>'site/index'
             ],
         ],
         'image' => [

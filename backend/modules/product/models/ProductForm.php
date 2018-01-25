@@ -5,6 +5,8 @@ use common\models\SProduct;
 use yii\base\Model;
 use common\models\SProductCatalog;
 use common\models\SCatalog;
+use common\models\SProductImg;
+use common\models\SPackage;
 
 /**
  * 产品新增
@@ -17,6 +19,8 @@ class ProductForm extends Model{
     public $name;
     
     public $number;
+    
+    public $price;
     
     public $description;
     
@@ -37,9 +41,10 @@ class ProductForm extends Model{
     
     public function rules() {
         return [
-            [['name','number'], 'required'],
+            [['name','number', 'price'], 'required'],
             [['catalog_id'], 'integer'],
-            [['description', 'package', 'images'], 'safe']
+            [['price'], 'number'],
+            [['description', 'packages', 'images'], 'safe']
         ];
     }
     
@@ -59,6 +64,7 @@ class ProductForm extends Model{
             $product->number = $this->number;
         }
         $product->name = $this->name;
+        $product->price = intval($this->price*100);
         $product->description = $this->description;
         if (!$product->save()) {
             \Yii::info('保存商品错误', __METHOD__);
@@ -75,7 +81,8 @@ class ProductForm extends Model{
             }
         }
         //保存商品图片
-        if (is_array($this->images)) {
+        if (is_array($this->images) && count($this->images) > 0) {
+            $newImgIds = [];
             foreach ($this->images as $image) {
                 $proImgForm = new ProductImageForm();
                 $proImgForm->attributes = $image;
@@ -84,10 +91,19 @@ class ProductForm extends Model{
                     $transaction->rollBack();
                     return false;
                 }
+                $newImgIds[] = $proImgForm->id;
+            }
+            //删除旧商品图片
+            $oldImgIds = SProductImg::find()->select('id')->where(['product_id'=>$product->id])
+                ->andWhere(['not in','id',$newImgIds])->column();
+            if ($oldImgIds) {
+                \Yii::info('删除旧图片id：'.json_encode($oldImgIds));
+                SProductImg::deleteAll(['id'=>$oldImgIds]);
             }
         }
         //保存产品包装
-        if (is_array($this->packages)) {
+        if (is_array($this->packages) && count($this->packages) > 0) {
+            $newPackageIds = [];
             foreach ($this->packages as $packageData) {
                 $packageForm = new PackageForm();
                 $packageForm->attributes = $packageData;
@@ -96,6 +112,14 @@ class ProductForm extends Model{
                     $transaction->rollBack();
                     return false;
                 }
+                $newPackageIds[] = $packageForm->id;
+            }
+            //删除旧商品规格
+            $oldPackageIds = SPackage::find()->select('id')->where(['product_id'=>$product->id])
+                ->andWhere(['not in','id', $newPackageIds])->column();
+            if($oldPackageIds) {
+                \Yii::info('删除旧规格:'.json_encode($oldPackageIds));
+                SPackage::deleteAll(['id'=>$oldPackageIds]);
             }
         }
         $transaction->commit();

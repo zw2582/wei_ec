@@ -326,6 +326,7 @@ CREATE TABLE `s_product` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `number` varchar(32) NOT NULL COMMENT '商品编号',
   `name` varchar(64) NOT NULL COMMENT '商品名称',
+  `price`  int(10) UNSIGNED NOT NULL COMMENT '商品价格',
   `supplier_id` int(10) NOT NULL COMMENT '供应商id',
   `description` text COMMENT '描述',
   `user_id` int(10) NOT NULL COMMENT '创建人id',

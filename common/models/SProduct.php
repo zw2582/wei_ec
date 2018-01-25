@@ -9,6 +9,7 @@ use Yii;
  *
  * @property integer $id
  * @property string $number
+ * @property string $price
  * @property string $name
  * @property integer $supplier_id
  * @property string $description
@@ -32,8 +33,8 @@ class SProduct extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['number', 'name', 'supplier_id', 'user_id'], 'required'],
-            [['supplier_id', 'user_id', 'status'], 'integer'],
+            [['number', 'price', 'name', 'supplier_id', 'user_id'], 'required'],
+            [['price', 'supplier_id', 'user_id', 'status'], 'integer'],
             [['description'], 'string'],
             [['create_time'], 'safe'],
             [['number'], 'string', 'max' => 32],
@@ -49,6 +50,7 @@ class SProduct extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'number' => 'Number',
+            'price' => 'Price',
             'name' => 'Name',
             'supplier_id' => 'Supplier ID',
             'description' => 'Description',
