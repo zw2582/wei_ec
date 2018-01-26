@@ -19,8 +19,7 @@ return [
         ],
         'weiauthor' => [
             'class'=>'frontend\models\WeiAuthor',
-            'appid'=>'wx42f761126784f81c',
-            'redirect_uri'=>'http://dev.app.weiec.com/demo/index',
+            'appid'=>'wx42f761126784f81c'
         ],
         'user' => [
             'identityClass' => 'common\models\User',

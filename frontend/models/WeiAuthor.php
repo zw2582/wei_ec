@@ -16,11 +16,9 @@ class WeiAuthor extends Component{
     
     public $appid;
     
-    public $redirect_uri;
-    
     public function init() {
         parent::init();
-        if (empty($this->appid) || empty($this->redirect_uri)) {
+        if (empty($this->appid)) {
             throw new UserException('lose required params');
         }
     }
@@ -32,9 +30,11 @@ class WeiAuthor extends Component{
         }
         $code = \Yii::$app->request->get("code");
         if (is_null($code)) {
+            $redirectUri = \Yii::$app->request->absoluteUrl;
+            $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
             $authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
             $link = sprintf('%s?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s#wechat_redirect',
-                $authlink, $this->appid, urlencode($this->redirect_uri), $scope, $scope);
+                $authlink, $this->appid, urlencode($redirectUri), $scope, $scope);
             
             \Yii::info('跳转链接获取code的请求:'.$link, __METHOD__);
             \Yii::$app->response->redirect($link);
@@ -106,7 +106,7 @@ class WeiAuthor extends Component{
                 $this->getCode('snsapi_userinfo');
                 return false;
             }
-        } elseif ($state == 'snsapi_base') {
+        } elseif ($state == 'snsapi_userinfo') {
             \Yii::info('接收到snsapi_base回执，获取用户信息', __METHOD__);
             $userInfo = $this->getUserInfoByAccessToken($accessToken, $openId);
             if (!$userInfo) {

@@ -3,8 +3,9 @@ namespace frontend\controllers;
 
 use common\controllers\BasicController;
 use yii\web\Controller;
+use common\controllers\AuthController;
 
-class DemoController extends BasicController {
+class DemoController extends AuthController {
     
     //首页
     public function actionIndex() {
