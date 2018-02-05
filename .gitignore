@@ -35,4 +35,9 @@ phpunit.phar
 /.vagrant
 
 # runtime
-*/runtime
+runtime/
+
+cache/
+
+asserts/
+assets/
