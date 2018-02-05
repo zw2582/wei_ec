@@ -2,6 +2,7 @@
 namespace paoma\models;
 
 use yii\base\Model;
+use yii\base\UserException;
 
 /**
  * 房间，redis存储
@@ -29,11 +30,6 @@ class Room extends Model{
      * 存储现有的房间号，作为房间号自增主键
      */
     const db_room_no = 'paoma_room_no';
-    
-    /*
-     * 存储房间内的用户，set集合类型
-     */
-    const prefix_room_users = 'paoma_room_users_';
     
     /**
      * 查询房间
@@ -81,9 +77,23 @@ class Room extends Model{
         $redis = \Yii::$app->redis;
         
         //用户进入房间
-        $redis->sadd(self::prefix_room_users.$roomNo, $user->uuid);
+        PaomaRoomUsers::add($roomNo, $user->uuid);
         //设置用户当前房间
-        $user->setCurrentRoomNo($roomNo);
+        PaomaUserRoom::set($user->uuid, $roomNo);
+    }
+    
+    /**
+     * 修改房间状态
+     * @param integer $status 1.准备开赛，等待马入场，0.未开赛，可能房主还未登录，此时不能加入,2.正在比赛，3.比赛结束
+     * wei.w.zhou@integle.com
+     * 2018年2月5日下午5:31:34
+     */
+    public static function updateStatus($roomNo, $status) {
+        if (!is_array($status, [0,1,2,3])) {
+            throw new UserException('参数不合法');
+        }
+        $redis = \Yii::$app->redis;
+        $redis->hset(self::prefix.$roomNo, 'isactive', $status);
     }
     
     /**
@@ -97,9 +107,9 @@ class Room extends Model{
         $redis = \Yii::$app->redis;
         
         //用户退出当前房间
-        $redis->srem(self::prefix_room_users.$roomNo, $user->uuid);
-        //设置用户当前房间
-        $user->delCurrentRoomNo();
+        PaomaRoomUsers::exit($roomNo, $user->uuid);
+        //设置用户当前房间为空
+        PaomaUserRoom::del($user->uuid);
     }
 }
 

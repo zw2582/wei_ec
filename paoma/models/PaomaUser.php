@@ -18,11 +18,6 @@ class PaomaUser extends Model{
     
     private static $self;
     
-    /*
-     * 存储用户当前所在房间编号
-     */
-    const prefix_user_roomno = 'paoma_user_roomno_';
-
     /**
      * 查看当前跑马用户信息
      * @return \paoma\models\PaomaUser
@@ -58,47 +53,14 @@ class PaomaUser extends Model{
     }
     
     /**
-     * 设置当前房间号,最好由Room类调用
-     * 
-     * @see Room::join()
-     * @param string $roomNo
-     * wei.w.zhou@integle.com
-     * 2018年2月5日下午1:45:33
-     */
-    public function setCurrentRoomNo($roomNo) {
-        if (empty($this->uuid)) {
-            \Yii::info('没有uuid无法进入房间');
-            return;
-        }
-        $redis = \Yii::$app->redis;
-        //设置用户所在的房间号
-        $redis->set(self::prefix_user_roomno.$this->uuid, $roomNo);
-        //增加房间内的用户
-        
-    }
-    
-    /**
      * 返回当前房间
      * @return string 房间号
      * wei.w.zhou@integle.com
      * 2018年2月5日下午2:34:17
      */
     public function currentRoomNo() {
-        $redis = \Yii::$app->redis;
-        return $redis->get(self::prefix_user_roomno.$this->uuid);
+        return PaomaUserRoom::get($this->uuid);
     }
     
-    /**
-     * 删除当前房间编号，最好只有Room调用
-     * @see Room::exitRoom()
-     * 
-     * wei.w.zhou@integle.com
-     * 2018年2月5日下午2:13:26
-     */
-    public function delCurrentRoomNo() {
-        $redis = \Yii::$app->redis;
-        
-        $redis->del(self::prefix_user_roomno.$this->uuid);
-    }
 }
 
