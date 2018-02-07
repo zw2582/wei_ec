@@ -18,7 +18,9 @@ class PlayController extends Controller{
      * 2018年2月5日下午3:00:43
      */
     public function actionRun() {
+        $handler = new PaomaHandler();
         
+        $webSocket = new WebSocketServer($handler);
     }
 }
 

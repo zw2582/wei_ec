@@ -11,72 +11,39 @@ use yii\base\Model;
  */
 class WebSocketServer extends Model{
     
-    public static $onlineQueue;
+    public $serv;
     
-    public static function begin() {
-        //用uuid保存fd
-        self::$onlineQueue = new \swoole_table(1024);
-        self::$onlineQueue->column('fd', \swoole_table::TYPE_INT);    //保存socketid
-        self::$onlineQueue->create();
-    }
+    public $host = '0.0.0.0';
     
-    public static function start() {
-        self::begin();
+    public $port = 9501;
+    
+    public $max_request = 1000;    //worker进程超过该请求数则重启
+    
+    public $max_conn = 10000;   //服务器允许的最大连接数
+    
+    public $worker_num = 4;     //worker进程数量，每个进程占40M内存
+    
+    public $task_worker_num = 400;  //task进程数量
+    
+    public function __construct(WebSocketHandler $eventHandler) {
+        //创建websocket进程
+        $this->serv = new \swoole_websocket_server($this->host, $this->port);
+        //设置websocket配置
+        $this->serv->set([
+            'max_request'=>$this->max_request,
+            'max_conn'=>$this->max_conn,
+            'worker_num'=>$this->worker_num,
+            'dispatch_mode'=>3,  //抢占分配
+            'task_worker_num'=>$this->task_worker_num,
+            'task_ipc_mode'=>3  //task争抢模式
+        ]);
+        //事件处理
+        $this->serv->on('open', [$this->eventHandler, 'onOpen']);
+        $this->serv->on('message', [$this->eventHandler, 'onMessage']);
+        $this->serv->on('close', [$this->eventHandler, 'onClose']);
         
-        $ws = new \swoole_websocket_server('0.0.0.0', '9501');
-        
-        $ws->on('open', function (\swoole_websocket_server $ws, \swoole_http_request $request) {
-            $uuid = $request->get['uuid'];
-            $client = $request->get['clinet'];  //web,phone
-            //校验参数
-            if (empty($uuid) || empty($client)) {
-                //停止接受数据
-                $ws->pause($fd);
-                $ws->push($fd, '请传递uuid');
-                $ws->stop($fd);
-                return;
-            }
-            //停止现有fd，保存新fd
-            $fd = $request->fd;
-            $fdinfo = $onlineQueue->get($email);
-            if ($fdinfo) {
-                $ws->pause($fd); // 停止接受数据
-                $ws->push($fd, 'exist email logined');
-                $ws->stop($fd); // 停止当前fd
-            }
-            
-            $onlineQueue->set($email, [
-                'fd' => $fd
-            ]);
-            $ws->push($fd, 'welcome,' . $email);
-        });
-            
-            $ws->on('message', function (\swoole_websocket_server $ws, \swoole_websocket_frame $frame) use ($onlineQueue) {
-                $jsonData = $frame->data;
-                $data = json_decode($jsonData, true);
-                if (empty($data)) {
-                    $ws->push($frame->fd, '请输入内容');
-                    return;
-                }
-                $toEmail = $data['to'];
-                
-                $tofd = $onlineQueue->get($toEmail, 'fd');
-                if ($ws->exist($tofd)) {
-                    $ws->push($tofd, $data['data']);
-                } else {
-                    $ws->push($frame->fd, $toEmail . '已下线');
-                }
-            });
-                
-                $ws->on('close', function (\swoole_websocket_server $ws, $fd) use ($onlineQueue) {
-                    foreach ($onlineQueue as $key => $data) {
-                        if ($data['fd'] == $fd) {
-                            $onlineQueue->del($key);
-                        }
-                    }
-                });
-        
-        $ws->start();
+        //启动程序
+        $this->serv->start();
     }
 }
 

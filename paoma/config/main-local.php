@@ -6,6 +6,12 @@ $config = [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'pR6inqs8aLsWDQe5MEJxDIt6qdVslSUT',
         ],
+        'redis'=>[
+            'class'=>'paoma\console\models\RedisPool',
+            'hostname'=>'192.168.100.18',
+            'port'=>6379,
+            'database'=>6
+        ]
     ],
 ];
 

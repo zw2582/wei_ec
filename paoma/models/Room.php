@@ -53,6 +53,7 @@ class Room extends Model{
     public static function create(PaomaUser $user) {
         $redis = \Yii::$app->redis;
         $roomNo = $redis->incr(self::db_room_no);
+        \Yii::info(sprintf("uuid:%s 创建房间:%s", $user->uuid, $roomNo), __METHOD__);
         
         //房间基本信息
         $redis->hset(self::prefix.$roomNo, 'room_no', $roomNo);
@@ -74,8 +75,17 @@ class Room extends Model{
      * 2018年2月5日下午2:41:49
      */
     public static function join($roomNo, PaomaUser $user) {
+        \Yii::info(sprintf("uuid:%s 进入房间:%s", $user->uuid, $roomNo), __METHOD__);
         $redis = \Yii::$app->redis;
         
+        //如果用户原来有房间先退出
+        if ($oldRoomNo = $user->currentRoomNo()) {
+            if ($oldRoomNo == $roomNo) {
+                return;
+            } else {
+                PaomaRoomUsers::exitRoom($oldRoomNo, $user->uuid);
+            }
+        }
         //用户进入房间
         PaomaRoomUsers::add($roomNo, $user->uuid);
         //设置用户当前房间
@@ -104,10 +114,11 @@ class Room extends Model{
      * 2018年2月5日下午2:51:51
      */
     public static function exitRoom($roomNo, PaomaUser $user) {
+        \Yii::info(sprintf("uuid:%s 退出房间:%s", $user->uuid, $roomNo), __METHOD__);
         $redis = \Yii::$app->redis;
         
         //用户退出当前房间
-        PaomaRoomUsers::exit($roomNo, $user->uuid);
+        PaomaRoomUsers::exitRoom($roomNo, $user->uuid);
         //设置用户当前房间为空
         PaomaUserRoom::del($user->uuid);
     }

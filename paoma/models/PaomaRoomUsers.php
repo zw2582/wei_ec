@@ -36,7 +36,7 @@ class PaomaRoomUsers extends Model{
      * wei.w.zhou@integle.com
      * 2018年2月5日下午5:39:17
      */
-    public static function exit($roomNo, $uuid) {
+    public static function exitRoom($roomNo, $uuid) {
         $redis = \Yii::$app->redis;
         
         $redis->srem(self::prefix.$roomNo, $uuid);

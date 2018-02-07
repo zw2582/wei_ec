@@ -7,12 +7,12 @@
 	
 	<!-- 马场信息 -->
 	<div>
-		<span>这里是马场编号：<?=room_no?></span>
+		<span>这里是马场编号：<?=$room_no?></span>
 		<!-- 如果用户没有登录则显示二维码登录 -->
     	<?php if (Yii::$app->user->isGuest):?>
     		<span>当前房主还未登录，请微信扫码登录</span>
     		<div class="login">
-    			<img alt="二维码扫描登录" src="/index.php/site/qrcode?str=<?=urlencode('http://paoma.com/phone/user/login?uuid='.$uuid.'&action='.$action)?>">
+    			<img alt="二维码扫描登录" src="/index.php/site/qrcode?str=<?=urlencode('http://paoma.com/phone/user/login?uuid='.$master->uuid.'&action=auth_confirm')?>">
     		</div>
     	<?php else:?>
     		<span>房主：<?=master['uname']?></span>

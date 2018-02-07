@@ -31,7 +31,7 @@ class RoomController extends BasicController{
         
         //创建房间
         $roomNo = Room::create($paomaUser);
-        
+
         return $this->render('room', [
             'master'=>$paomaUser,
             'room_no'=>$roomNo,
