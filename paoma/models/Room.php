@@ -107,6 +107,18 @@ class Room extends Model{
     }
     
     /**
+     * 修改uid
+     * @param unknown $roomNo
+     * @param unknown $uid
+     * wei.w.zhou@integle.com
+     * 2018年2月8日上午11:52:07
+     */
+    public static function updateUid($roomNo, $uid) {
+        $redis = \Yii::$app->redis;
+        $redis->hset(self::prefix.$roomNo, 'uid', $uid);
+    }
+    
+    /**
      * 退出当前房间
      * @param string $roomNo
      * @param PaomaUser $user

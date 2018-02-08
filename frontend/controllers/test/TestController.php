@@ -14,7 +14,24 @@ class TestController extends BasicController{
     
     public $enableCsrfValidation = false;
     
+    const prefix = "ab_";
+    const max = 4;
+    
     public function actionIndex() {
+        $roomNo = '001';
+        $count = 2;
+        $uuid = 'abc';
+        $redis = \Yii::$app->redis;
+        
+        //监听结束变量
+        $redis->watch(self::prefix.$roomNo);
+        
+        $redis->multi();
+        //新增分值
+        $score = $redis->zincrby(self::prefix.$roomNo, $count, $uuid);
+        
+        $data = $redis->exec();
+        \Yii::info($data);die;
         $file = 'D:\tools\1.txt';
         $handle1 = fopen($file, 'wb');
         if (flock($handle1, LOCK_EX)) {

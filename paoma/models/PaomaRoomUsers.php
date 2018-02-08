@@ -30,6 +30,25 @@ class PaomaRoomUsers extends Model{
     }
     
     /**
+     * 返回房间内的所有用户的uuid
+     * @param unknown $roomNo
+     * @return mixed
+     * wei.w.zhou@integle.com
+     * 2018年2月8日上午10:35:37
+     */
+    public static function members($roomNo) {
+        $redis = \Yii::$app->redis;
+        
+        return $redis->smembers($roomNo);
+    }
+    
+    public static function exist($roomNo, $uuid) {
+        $redis = \Yii::$app->redis;
+        
+        return $redis->sismember(self::prefix.$roomNo, $uuid);
+    }
+    
+    /**
      * 退出房间
      * @param string $roomNo
      * @param string $uuid

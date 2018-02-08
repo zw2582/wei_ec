@@ -17,9 +17,9 @@ class PaomaUserRoom extends Model{
     const prefix = 'paoma_user_roomno_';
     
     /**
-     * 获取用户所在房间
+     * 获取用户所在房间号
      * @param string $uuid
-     * @return mixed
+     * @return string
      * wei.w.zhou@integle.com
      * 2018年2月5日下午5:25:18
      */
@@ -29,10 +29,10 @@ class PaomaUserRoom extends Model{
     }
     
     /**
-     * 设置用户所在房间
+     * 设置用户所在房间号
      * @param string $uuid
      * @param int $roomNo
-     * @return mixed
+     * @return string
      * wei.w.zhou@integle.com
      * 2018年2月5日下午5:26:57
      */
@@ -42,9 +42,9 @@ class PaomaUserRoom extends Model{
     }
     
     /**
-     * 删除用户所在房间
+     * 删除用户所在房间号
      * @param string $uuid
-     * @return mixed
+     * @return string
      * wei.w.zhou@integle.com
      * 2018年2月5日下午5:26:49
      */

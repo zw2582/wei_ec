@@ -86,7 +86,7 @@ class PaomaHandler implements WebSocketHandler{
             return;
         }
         //分发任务
-        return $requestData->process($this);
+        return $requestData->process($this, $serv);
     }
 
     /**
