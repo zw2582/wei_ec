@@ -93,6 +93,10 @@ class PaomaRoomScore extends Model{
         $redis = \Yii::$app->redis;
         
         $rank = $redis->zrank(self::prefix.$roomNo, $uuid);
+        if (empty($rank)) {
+            //如果用户不在比赛中也返回前十名
+            return self::listTop($roomNo);
+        }
         
         return $redis->zrange(self::prefix.$roomNo, $rank-4, $rank+5, true);
     }

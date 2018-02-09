@@ -240,5 +240,41 @@ class RequestData extends Model{
         }
     }
     
+    /**
+     * 再次准备
+     * 
+     * wei.w.zhou@integle.com
+     * 2018年2月9日上午9:17:06
+     */
+    public function actionPrepare() {
+        $fd = $this->handler->phoneFdTable->get($this->uuid);
+        //检查房间是否存在,且房主已认证
+        $room = Room::findOne($this->room_no);
+        if (empty($room) || $room['isactive'] == 0) {
+            \Yii::info(sprintf("roomno:%s 房间不存在，或房主为认证", $this->room_no), 'start');
+            return $this->sendFail($fd, '房间不存在，或房主为认证');
+        }
+        //判断用户权限
+        if ($this->uuid != $room['uuid']) {
+            \Yii::info("您不是房主,没有开始权限", __METHOD__);
+            return $this->sendFail($fd, "您不是房主，没有开始权限");
+        }
+        //修改房间比赛状态
+        Room::updateStatus($this->room_no, 1);
+        
+        //通知房间内所有用户
+        $uuids = PaomaRoomUsers::members($this->room_no);
+        foreach ($uuids as $uuid) {
+            //获取webfd
+            $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
+            $this->sendSucc($phoneFd, ['action'=>'prepare']);
+        }
+        foreach ($uuids as $uuid) {
+            //获取webfd
+            $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
+            $this->sendSucc($webuserfd, ['action'=>'prepare']);
+        }
+    }
+    
 }
 

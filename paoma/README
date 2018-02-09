@@ -1,0 +1,66 @@
+1.连接
+url:127.0.0.1:9501
+参数：
+	source:来源,web:网页端，phone：手机端
+	uuid：uuid
+	
+2.网页认证请求
+参数：
+	action："auth_request",
+	uuid：uuid
+返回：无返回
+
+3.认证确认
+参数：
+	action:"auth_confirm",
+	uuid:uuid
+	uid:用户id
+返回：
+	status:1,
+	message:"",
+	data:{
+		"action":"auth_confirm",
+		"uuid":uuid,
+		"uid":用户id
+	}
+
+4.摇晃手机比赛中
+参数：
+	action:"play",
+	room_no:房间号,
+	uuid:uuid,
+	count:摇晃次数
+返回：
+	status:1,
+	message:"",
+	data:{
+		"action":"play",
+		"data":[
+			{"member":"score"}
+		],
+		"status":"playing"|"comple",比赛中还是已完成
+	}
+	
+5.开始命令
+参数：
+	action:"start",
+	uuid:uuid,
+	room_no:房间号,
+返回：
+	status:1,
+	message:错误信息,
+	data:{
+		action:"start"
+	}
+	
+6.再次准备
+参数：
+	action:"prepare",
+	uuid:uuid,
+	room_no:房间号,
+返回：
+	status:1,
+	message:错误信息,
+	data:{
+		action:"prepare"
+	}
