@@ -19,6 +19,7 @@ class ComposerStaticInit7e2bca6a7ad2fb4481bca401a2f2aefe
         'y' => 
         array (
             'yii\\swiftmailer\\' => 16,
+            'yii\\redis\\' => 10,
             'yii\\gii\\' => 8,
             'yii\\faker\\' => 10,
             'yii\\debug\\' => 10,
@@ -33,6 +34,10 @@ class ComposerStaticInit7e2bca6a7ad2fb4481bca401a2f2aefe
         'l' => 
         array (
             'linslin\\yii2\\curl\\' => 18,
+        ),
+        'd' => 
+        array (
+            'dosamigos\\qrcode\\' => 17,
         ),
         'c' => 
         array (
@@ -85,6 +90,10 @@ class ComposerStaticInit7e2bca6a7ad2fb4481bca401a2f2aefe
         array (
             0 => __DIR__ . '/..' . '/yiisoft/yii2-swiftmailer',
         ),
+        'yii\\redis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/yiisoft/yii2-redis',
+        ),
         'yii\\gii\\' => 
         array (
             0 => __DIR__ . '/..' . '/yiisoft/yii2-gii',
@@ -118,6 +127,10 @@ class ComposerStaticInit7e2bca6a7ad2fb4481bca401a2f2aefe
         'linslin\\yii2\\curl\\' => 
         array (
             0 => __DIR__ . '/..' . '/linslin/yii2-curl',
+        ),
+        'dosamigos\\qrcode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/2amigos/yii2-qrcode-helper/src',
         ),
         'cebe\\markdown\\' => 
         array (

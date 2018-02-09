@@ -4,8 +4,13 @@ namespace frontend\controllers;
 use common\controllers\BasicController;
 use yii\web\Controller;
 use common\controllers\AuthController;
+use common\models\WxPlatform;
 
-class DemoController extends AuthController {
+class DemoController extends BasicController {
+    
+    const appid = 'wxcb612ed7920d6b98';
+    
+    const appsecret = 'a6507fa042aad7316974c3f1f7dde928';
     
     //首页
     public function actionIndex() {
@@ -13,18 +18,48 @@ class DemoController extends AuthController {
     }
     
     public function actionTest() {
-        try {
-            throw  new \Exception('自定义错误', '206', new \Exception('nidaye'));
-        } catch (\Exception $e) {
-            var_dump($e->getMessage());
-        }
         
+        $user = [
+            'real_name'=>'real_name',
+            'nick_name'=>'nick_name',
+            'name'=>'name'
+        ];
         
-        die;
-        $persons = new Person2();
-        foreach ($persons as $a) {
-            var_dump($a);
-        }
+        $caca = $user['real_name']?:($user['nick_name']?:$user['name']) ? : 'email';
+        
+        var_dump($caca);die;
+        
+        $ch = curl_init("https://www.juxinli.com/orgApi/rest/applications/liuju");
+        
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-type: application/json',
+            'Accept: application/json']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+            "selected_website"=>[],
+            "basic_info"=> [
+                "name"=>"廖晓庆",
+                "id_card_num"=>"422801198910213838",
+                "cell_phone_num"=>"13858319176"
+            ]
+        ]));
+        
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+        
+        $result = curl_exec($ch);
+        
+        echo($result);die;
+        
+        /* $data = WxPlatform::getAccessToken(self::appid, self::appsecret);
+        print_r($data);die; */
+        
+        $d = ['a'=>1,'b'=>2];
+        $c = &$d['a'];
+        $c = ['z'=>1];
+        unset($c);
+        print_r($d);
     }
     
     //收货地址

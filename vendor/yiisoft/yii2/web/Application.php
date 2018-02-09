@@ -10,6 +10,8 @@ namespace yii\web;
 use Yii;
 use yii\helpers\Url;
 use yii\base\InvalidRouteException;
+use yii\redis\Connection;
+use frontend\models\WeiAuthor;
 
 /**
  * Application is the base class for all web application classes.
@@ -22,6 +24,8 @@ use yii\base\InvalidRouteException;
  * @property Response $response The response component. This property is read-only.
  * @property Session $session The session component. This property is read-only.
  * @property User $user The user component. This property is read-only.
+ * @property Connection $redis The redis component
+ * @property WeiAuthor $weiauthor 微信认证组件
  *
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0

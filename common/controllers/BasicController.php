@@ -11,10 +11,12 @@ class BasicController extends Controller{
         if (!parent::beforeAction($action)) {
             return false;
         }
-        header('Access-Control-Allow-Origin:http://127.0.0.1:8080');
-        header('Access-Control-Allow-Credentials:true');
-        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-        header('Access-Control-Allow-Methods:GET,POST,PATCH,PUT,OPTIONS');
+        if (YII_DEBUG) {
+            header('Access-Control-Allow-Origin:http://127.0.0.1:8080');
+            header('Access-Control-Allow-Credentials:true');
+            header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+            header('Access-Control-Allow-Methods:GET,POST,PATCH,PUT,OPTIONS');
+        }
         return true;
     }
     

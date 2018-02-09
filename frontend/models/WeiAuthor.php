@@ -148,4 +148,3 @@ class WeiAuthor extends Component{
         return \Yii::$app->user->login($user, 3600 * 24 * 30);
     }
 }
-
