@@ -18,18 +18,30 @@ class PaomaUser extends Model{
     
     private static $self;
     
+    const sess_uuid_key = '__uuid';
+    
     /**
      * 查看当前跑马用户信息
+     * 首先已传入的uuid为主，其次已登录的uuid为主，最后以session的uuid为主，然后才是uuid生成
      * @return \paoma\models\PaomaUser
      * wei.w.zhou@integle.com
      * 2018年2月5日上午10:49:25
      */
-    public static function current() {
+    public static function current($existUUid=null) {
+        if (empty($existUUid)) {
+            $existUUid = \Yii::$app->session->get(self::$self->uuid);
+        }
         if (self::$self == null) {
             self::$self = new self();
             if (\Yii::$app->user->isGuest) {
-                //生成uuid，等待登录后绑定uid
-                self::$self->uuid = uniqid();
+                if (empty($existUUid)) {
+                    //生成uuid，等待登录后绑定uid
+                    self::$self->uuid = uniqid();
+                } else {
+                    self::$self->uuid = $existUUid;
+                }
+                //新生成的uuid保存到session中
+                \Yii::$app->session->set(self::sess_uuid_key, self::$self->uuid);
                 self::$self->uid = 0;
             } else {
                 $uId = \Yii::$app->user->id;
@@ -37,9 +49,13 @@ class PaomaUser extends Model{
                 $uuid = PaomaUUid::getByUid($uId);
                 //用户已登录，创建uuid，并绑定
                 if (empty($uuid)) {
-                    $uuid = uniqid();
+                    if (empty($existUUid)) {
+                        $uuid = uniqid();
+                    } else {
+                        $uuid = $existUUid;
+                    }
                     PaomaUUid::setByUid($uId, $uuid);
-                }
+                } 
                 
                 $user = \Yii::$app->user->identity;
                 self::$self->uuid = $uuid;
@@ -50,6 +66,17 @@ class PaomaUser extends Model{
             }
         }
         return self::$self;
+    }
+    
+    private $_uuid = FALSE;
+    public function getUuid() {
+        if ($this->uuid === false) {
+            
+        }
+    }
+    
+    public function setUuid($uuid) {
+        
     }
     
     /**

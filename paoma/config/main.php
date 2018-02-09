@@ -23,12 +23,22 @@ return [
         ],
         'user' => [
             'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
+            'enableAutoLogin' => false,
             'identityCookie' => ['name' => '_identity-paoma', 'httpOnly' => true],
         ],
         'session' => [
             // this is the name of the session cookie used for login on the frontend
-            'name' => 'advanced-paoma',
+            'name' => 'paoma',
+            'class' => 'yii\redis\Session',
+            'redis' => 'redis',
+            'keyPrefix'=>'PHPREDIS_SESSION:',
+            'timeOut' => 3600,
+            'cookieParams' => [
+                'domain' => '.'.HTTP_SUFFIX,
+                'lifetime' => 3600,
+                'httpOnly' => TRUE,
+                'path' => '/'
+            ]
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,

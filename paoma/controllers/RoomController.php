@@ -33,8 +33,9 @@ class RoomController extends BasicController{
         $roomNo = Room::create($paomaUser);
 
         return $this->render('room', [
-            'master'=>$paomaUser,
+            'user'=>$paomaUser,
             'room_no'=>$roomNo,
+            'room'=>$room,
             'action'=>'create'
         ]);
     }
@@ -46,8 +47,6 @@ class RoomController extends BasicController{
         $roomNo = \Yii::$app->request->get('roomno');
         
         //判断房间是否存在
-        $redis = \Yii::$app->redis;
-        
         $room = Room::findOne($roomNo);
         if (!$room) {
             throw new UserException('该房间不存在，请选择其他房间或者创建房间');
@@ -55,10 +54,11 @@ class RoomController extends BasicController{
         //查看当前跑马用户信息
         $paomaUser = PaomaUser::current();
         
+        Room::join($roomNo, $paomaUser);
+        
         return $this->render('room', [
             'room_no'=>$roomNo,
-            'uuid'=>$paomaUser->uuid,
-            'uid'=>$paomaUser->uid,
+            'user'=>$paomaUser,
             'action'=>'join'
         ]);
     }

@@ -109,7 +109,14 @@ class RequestData extends Model{
      * 2018年2月7日下午3:52:45
      */
     public function actionAuthRequest() {
-        return PaomaAuth::add($this->uuid);
+        PaomaAuth::add($this->uuid);
+        
+        $phonefd = $this->handler->phoneFdTable->get($this->uuid, 'fd');
+        if ($phonefd && $this->serv->exist($phonefd)) {
+            $this->sendSucc($phonefd, [
+                'action'=>'auth_request'
+            ]);
+        }
     }
     
     /**
