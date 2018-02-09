@@ -1,5 +1,5 @@
 <?php
-namespace paoma\console\models;
+namespace console\modules\paoma\models;
 
 use yii\base\Model;
 

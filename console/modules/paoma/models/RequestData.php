@@ -1,13 +1,11 @@
 <?php
-namespace paoma\console\models;
+namespace console\modules\paoma\models;
 
-use yii\base\Model;
-use paoma\console\PaomaHandler;
-use paoma\models\PaomaUser;
-use paoma\models\PaomaUserRoom;
-use paoma\models\Room;
-use paoma\models\PaomaUUid;
+use console\modules\paoma\swoole\PaomaHandler;
 use paoma\models\PaomaRoomUsers;
+use paoma\models\PaomaUUid;
+use paoma\models\Room;
+use yii\base\Model;
 
 /**
  * 所有请求数据

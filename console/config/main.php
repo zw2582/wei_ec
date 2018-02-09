@@ -17,6 +17,11 @@ return [
             'namespace' => 'common\fixtures',
           ],
     ],
+    'modules'=>[
+        'paoma'=>[
+            'class' => 'console\modules\paoma\PaomaModule',
+        ]
+    ],
     'components' => [
         'log' => [
             'targets' => [
@@ -26,6 +31,12 @@ return [
                 ],
             ],
         ],
+        'redis'=>[
+            'class'=>'console\modules\paoma\models\RedisPool',
+            'hostname'=>'121.42.137.238',
+            'port'=>6379,
+            'database'=>0
+        ]
     ],
     'params' => $params,
 ];

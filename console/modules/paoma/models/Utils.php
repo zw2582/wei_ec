@@ -1,5 +1,5 @@
 <?php
-namespace paoma\console;
+namespace console\modules\paoma\models;
 
 class Utils {
     

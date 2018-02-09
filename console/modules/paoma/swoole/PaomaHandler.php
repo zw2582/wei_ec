@@ -1,9 +1,10 @@
 <?php
-namespace paoma\console;
+namespace console\modules\paoma\swoole;
 
+use console\modules\paoma\models\RequestData;
+use console\modules\paoma\models\Utils;
 use swoole_http_request;
 use swoole_websocket_server;
-use paoma\console\models\RequestData;
 
 /**
  * 跑马处理

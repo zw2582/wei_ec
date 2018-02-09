@@ -1,5 +1,5 @@
 <?php
-namespace paoma\console;
+namespace console\modules\paoma\swoole;
 
 use swoole_http_request;
 use swoole_websocket_server;

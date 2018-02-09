@@ -1,7 +1,9 @@
 <?php
-namespace paoma\console;
+namespace console\modules\paoma\controllers;
 
 use yii\console\Controller;
+use console\modules\paoma\swoole\PaomaHandler;
+use console\modules\paoma\swoole\WebSocketServer;
 
 /**
  * 利用swoole建立的websocket服务端
