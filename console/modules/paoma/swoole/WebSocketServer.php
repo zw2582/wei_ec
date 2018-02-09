@@ -41,6 +41,8 @@ class WebSocketServer extends Model{
         $this->serv->on('open', [$eventHandler, 'onOpen']);
         $this->serv->on('message', [$eventHandler, 'onMessage']);
         $this->serv->on('close', [$eventHandler, 'onClose']);
+        $this->serv->on('task', [$eventHandler, 'onTask']);
+        $this->serv->on('finish', [$eventHandler, 'onFinish']);
         
         //启动程序
         $this->serv->start();
