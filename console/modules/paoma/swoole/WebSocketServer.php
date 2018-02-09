@@ -38,9 +38,9 @@ class WebSocketServer extends Model{
             'task_ipc_mode'=>3  //task争抢模式
         ]);
         //事件处理
-        $this->serv->on('open', [$this->eventHandler, 'onOpen']);
-        $this->serv->on('message', [$this->eventHandler, 'onMessage']);
-        $this->serv->on('close', [$this->eventHandler, 'onClose']);
+        $this->serv->on('open', [$eventHandler, 'onOpen']);
+        $this->serv->on('message', [$eventHandler, 'onMessage']);
+        $this->serv->on('close', [$eventHandler, 'onClose']);
         
         //启动程序
         $this->serv->start();
