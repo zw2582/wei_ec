@@ -138,6 +138,8 @@ class SiteController extends Controller
      */
     public function actionAbout()
     {
+	$result=\Yii::$app->db->createCommand('select * from user')->queryAll();
+	var_dump($result);
         return $this->render('about');
     }
 

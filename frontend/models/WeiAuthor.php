@@ -15,6 +15,8 @@ use common\models\User;
 class WeiAuthor extends Component{
     
     public $appid;
+
+    public $appsecret='f87da08f9e619ab9b95205d2f17d8dfc';
     
     public function init() {
         parent::init();
@@ -32,8 +34,9 @@ class WeiAuthor extends Component{
         if (is_null($code)) {
             $redirectUri = \Yii::$app->request->absoluteUrl;
             $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
-            $authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
-            $link = sprintf('%s?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s#wechat_redirect',
+            //$authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
+            $authlink='https://nbfq.site/weiauth.php';
+            $link = sprintf('%s?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s&to=weixin#wechat_redirect',
                 $authlink, $this->appid, urlencode($redirectUri), $scope, $scope);
             
             \Yii::info('跳转链接获取code的请求:'.$link, __METHOD__);
@@ -46,8 +49,8 @@ class WeiAuthor extends Component{
     
     //获取access_token
     public function getAccessToken($code) {
-        $link = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=SECRET&code=%s&grant_type=authorization_code';
-        $link = sprintf($link, $this->appid, $code);
+        $link = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code';
+        $link = sprintf($link, $this->appid, $this->appsecret, $code);
         
         \Yii::info('获取accessToken网页授权:'.$link);
         $curl = new Curl();
@@ -55,7 +58,9 @@ class WeiAuthor extends Component{
             CURLOPT_SSL_VERIFYPEER=>0,
             CURLOPT_SSL_VERIFYHOST=>0
         ])->get($link);
+        \Yii::info('获取accessToken网页授权response:'.$response);
         if ($curl->responseCode == 200) {
+	    $response = json_decode($response, true);
             return [$response['access_token'], $response['openid']];
         } else {
             \Yii::error('获取accessToken网页授权失败:'.$response, __METHOD__);
@@ -76,13 +81,14 @@ class WeiAuthor extends Component{
             CURLOPT_SSL_VERIFYPEER=>0,
             CURLOPT_SSL_VERIFYHOST=>0
         ])->get($link);
+        \Yii::info(sprintf('根据access_token获取用户信息response:%s', $response), __METHOD__);
         if ($curl->responseCode != 200) {
             throw new UserException('据access_token获取用户信息失败:'.$response);
         }
         if (isset($response['errcode'])) {
             throw new UserException('据access_token获取用户信息失败:'.$response['errmsg']);
         }
-        return $response;
+        return json_decode($response,true);
     }
     
     //登录
@@ -103,6 +109,7 @@ class WeiAuthor extends Component{
             $user = User::findOne(['openid'=>$openId, 'status'=>User::STATUS_ACTIVE]);
             if (empty($user)) {
                 \Yii::info('snsapi_base判断用户不存在，启动snsapi_userinfo认证', __METHOD__);
+		unset($_GET['code']);
                 $this->getCode('snsapi_userinfo');
                 return false;
             }
@@ -130,8 +137,8 @@ class WeiAuthor extends Component{
                 $user->city = $userInfo['city'];
                 $user->country = $userInfo['country'];
                 $user->headimgurl = $userInfo['headimgurl'];
-                $user->privilege = $userInfo['privilege'];
-                $user->unionid = $userInfo['unionid'];
+                $user->privilege = json_encode($userInfo['privilege']);
+                //$user->unionid = $userInfo['unionid'];
                 if (!$user->save()) {
                     throw new UserException(current($user->getFirstErrors()));
                 }
