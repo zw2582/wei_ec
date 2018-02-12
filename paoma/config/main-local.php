@@ -8,9 +8,9 @@ $config = [
         ],
         'redis'=>[
             'class'=>'paoma\console\models\RedisPool',
-            'hostname'=>'192.168.100.18',
+            'hostname'=>'127.0.0.1',
             'port'=>6379,
-            'database'=>6
+            'database'=>0
         ]
     ],
 ];

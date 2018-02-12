@@ -15,7 +15,7 @@ class WebSocketServer extends Model{
     
     public $host = '0.0.0.0';
     
-    public $port = 9501;
+    public $port = 9502;
     
     public $max_request = 1000;    //worker进程超过该请求数则重启
     
