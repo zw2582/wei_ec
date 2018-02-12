@@ -4,6 +4,7 @@ namespace console\modules\paoma\controllers;
 use yii\console\Controller;
 use console\modules\paoma\swoole\PaomaHandler;
 use console\modules\paoma\swoole\WebSocketServer;
+use console\modules\paoma\models\RequestData;
 
 /**
  * 利用swoole建立的websocket服务端
@@ -23,6 +24,19 @@ class PlayController extends Controller{
         $handler = new PaomaHandler();
         
         $webSocket = new WebSocketServer($handler);
+    }
+    
+    public function actionTest() {
+        $rd = new RequestData();
+        $rd->attributes = [
+            'action'=>'create',
+            'uuid'=>'3232'
+        ];
+        if (!$rd->validate()) {
+            print_r($rd->getErrors());
+        } else {
+            echo 'success';
+        }
     }
 }
 
