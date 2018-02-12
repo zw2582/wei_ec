@@ -51,7 +51,7 @@ class RequestData extends Model{
     public function rules() {
         return [
             [['action','uuid'], 'required'],
-	    [['action', 'uuid'], 'string'],
+            [['action', 'uuid'], 'string'],
             [['count','uid'], 'integer'],
             ['room_no', 'safe']
         ];

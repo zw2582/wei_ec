@@ -33,7 +33,7 @@ return [
         ],
         'redis'=>[
             'class'=>'console\modules\paoma\models\RedisPool',
-            'hostname'=>'121.42.137.238',
+            'hostname'=>'127.0.0.1',
             'port'=>6379,
             'database'=>0
         ]
