@@ -77,7 +77,15 @@ class PaomaRoomScore extends Model{
     public static function listTop($roomNo, $top=0, $end=10) {
         $redis = \Yii::$app->redis;
         
-        return $redis->zrange(self::prefix.$roomNo, $top, $end, true);
+        $data = $redis->zrevrangebyscore(self::prefix.$roomNo, 1000, 0, 'withscores', 'limit', $top, $end);
+        
+        $result = [];
+        foreach ($data as $k=>$v) {
+            if ($k % 2 == 0) {
+                $result[$v] = $data[$k+1];
+            }
+        }
+        return $result;
     }
     
     /**
@@ -92,13 +100,59 @@ class PaomaRoomScore extends Model{
     public static function listByUUid($roomNo, $uuid, $range=10) {
         $redis = \Yii::$app->redis;
         
-        $rank = $redis->zrank(self::prefix.$roomNo, $uuid);
-        if (empty($rank)) {
+        //放回当前用户的分值
+        $score = $redis->zscore(self::prefix.$roomNo, $uuid);
+        
+        if (empty($score)) {
             //如果用户不在比赛中也返回前十名
             return self::listTop($roomNo);
         }
         
-        return $redis->zrange(self::prefix.$roomNo, $rank-4, $rank+5, true);
+        //获取前10名
+        $data = $redis->zrevrangebyscore(self::prefix.$roomNo, 1000, 0, 'withscores', 'limit', 0, 10);
+        $result = [];
+        foreach ($data as $k=>$v) {
+            if ($k % 2 == 0) {
+                $result[$v] = $data[$k+1];
+            }
+        }
+        
+        //如果当前uuid在数组中，则移除当前元素数据，如果不在则，移除最后一位数据
+        if (array_key_exists($uuid, $result)) {
+            unset($result['uuid']);
+        } else {
+            array_pop($result);
+        }
+        
+        //将当前用户数据插入第四位
+        $result = array_splice($result, 3, 0, [$uuid=>$score]);
+        
+        return $result;
+    }
+    
+    /**
+     * 退出比赛
+     * @param unknown $roomNo
+     * @param unknown $uuid
+     * wei.w.zhou@integle.com
+     * 2018年2月11日下午3:01:28
+     */
+    public static function remove($roomNo, $uuid) {
+        $redis = \Yii::$app->redis;
+        
+        return $redis->zrem(self::prefix.$roomNo, $roomNo);
+    }
+    
+    /**
+     * 清除比赛结果
+     * @param unknown $roomNo
+     * wei.w.zhou@integle.com
+     * 2018年2月12日上午9:46:27
+     */
+    public static function clear($roomNo) {
+        $redis = \Yii::$app->redis;
+        
+        $redis->del(self::prefix.$roomNo);
     }
     
     

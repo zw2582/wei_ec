@@ -39,7 +39,7 @@ class PaomaRoomUsers extends Model{
     public static function members($roomNo) {
         $redis = \Yii::$app->redis;
         
-        return $redis->smembers($roomNo);
+        return $redis->smembers(self::prefix.$roomNo);
     }
     
     public static function exist($roomNo, $uuid) {
@@ -59,6 +59,18 @@ class PaomaRoomUsers extends Model{
         $redis = \Yii::$app->redis;
         
         $redis->srem(self::prefix.$roomNo, $uuid);
+    }
+    
+    /**
+     * 返回当前房间人员总数
+     * @param unknown $roomNo
+     * wei.w.zhou@integle.com
+     * 2018年2月12日上午10:55:20
+     */
+    public static function count($roomNo) {
+        $redis = \Yii::$app->redis;
+        
+        return $redis->scard(self::prefix.$roomNo);
     }
 }
 

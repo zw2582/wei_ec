@@ -38,10 +38,10 @@ interface WebSocketHandler {
      * wei.w.zhou@integle.com
      * 2018年2月7日下午2:30:16
      */
-    public function onClose(\swoole_server $server, int $fd, int $reactorId);
+    public function onClose(\swoole_server $server, $fd, $reactorId);
     
-    public function onTask(\swoole_server $serv, int $task_id, int $src_worker_id, $data);
+    public function onTask(\swoole_server $serv, $task_id, $src_worker_id, $data);
     
-    public function onFinish(\swoole_server $serv, int $task_id, string $data);
+    public function onFinish(\swoole_server $serv, $task_id, $data);
 }
 

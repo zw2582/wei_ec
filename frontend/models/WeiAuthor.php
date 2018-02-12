@@ -33,16 +33,18 @@ class WeiAuthor extends Component{
         $code = \Yii::$app->request->get("code");
         if (is_null($code)) {
             $redirectUri = \Yii::$app->request->absoluteUrl;
-            $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
+//             $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
             //$authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
             $authlink='https://nbfq.site/weiauth.php';
-            $link = sprintf('%s?appid=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s&to=weixin#wechat_redirect',
-                $authlink, $this->appid, urlencode($redirectUri), $scope, $scope);
+            $link = sprintf('%s?appid=%s&response_type=code&scope=%s&state=%s&to=weixin#wechat_redirect',
+                $authlink, $this->appid, $scope, urlencode($redirectUri).'|'.$scope);
             
             \Yii::info('跳转链接获取code的请求:'.$link, __METHOD__);
             \Yii::$app->response->redirect($link);
+            return [null,null];
         }
         $state = \Yii::$app->request->get("state");
+        $state = explode('|', $state)[1];
         \Yii::info('获取到微信认证code：'.$code, __METHOD__);
         return [$code, $state];
     }
@@ -92,10 +94,13 @@ class WeiAuthor extends Component{
     }
     
     //登录
-    public function login() {
+    public function login($test = false) {
         if (!\Yii::$app->user->isGuest) {
             \Yii::info('用户已经登录', __METHOD__);
             return true;
+        }
+        if ($test) {
+            return $this->loginTest();
         }
         //1.snsapi_base获取openid
         list($code, $state) = $this->getCode('snsapi_base');
@@ -145,6 +150,16 @@ class WeiAuthor extends Component{
             }
         }
         
-        return \Yii::$app->user->login($user, 3600 * 24 * 30);
+        return \Yii::$app->user->login($user);
+    }
+    
+    public function loginTest() {
+        $user = new User();
+        $user->username = 'test';
+        $user->sex = 1;
+        $user->id = 1;
+        $user->headimgurl = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
+        
+        return \Yii::$app->user->login($user);
     }
 }
