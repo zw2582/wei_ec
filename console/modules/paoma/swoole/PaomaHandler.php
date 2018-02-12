@@ -19,6 +19,7 @@ class PaomaHandler implements WebSocketHandler{
     public $phoneFdTable;
     
     public function __construct() {
+	echo "创建fd句柄表\n";
         //创建web端fd句柄表
         $this->webFdTable = new \swoole_table(1000);
         $this->webFdTable->column('fd', \swoole_table::TYPE_INT);
@@ -40,6 +41,7 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onOpen()
      */
     public function onOpen(swoole_websocket_server $svr, swoole_http_request $req) {
+	echo "open\n";
         \Yii::info('连接到websocket时，根据source保存uuid和fd', 'paomahandler');
         //保存uuid和fd
         $source = $req->get['source'];
@@ -64,6 +66,7 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onMessage()
      */
     public function onMessage(\swoole_server $server, \swoole_websocket_frame $frame) {
+	echo "message\n";
         \Yii::info('当获取到消息时，直接转发给task:data:'.$frame->data, 'paomahandler');
         $server->task($frame->data);
     }
@@ -74,6 +77,7 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onTask()
      */
     public function onTask(\swoole_server $serv, $task_id, $src_worker_id, $data){
+	echo "task\n";
         \Yii::info('执行任务:data:'.$data, 'paomahandler');
         //校验参数
         $data = json_decode($data);

@@ -7,8 +7,8 @@ $config = [
             'cookieValidationKey' => 'pR6inqs8aLsWDQe5MEJxDIt6qdVslSUT',
         ],
         'redis'=>[
-            'class'=>'\yii\redis\Connection',
-            'hostname'=>'120.79.30.72',
+            'class'=>'paoma\console\models\RedisPool',
+            'hostname'=>'127.0.0.1',
             'port'=>6379,
             'database'=>0
         ]

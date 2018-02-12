@@ -27,6 +27,7 @@ class WebSocketServer extends Model{
     
     public function __construct(WebSocketHandler $eventHandler) {
         //创建websocket进程
+	echo "创建websocket进程\n";
         $this->serv = new \swoole_websocket_server($this->host, $this->port);
         //设置websocket配置
         $this->serv->set([
@@ -45,6 +46,7 @@ class WebSocketServer extends Model{
         $this->serv->on('finish', [$eventHandler, 'onFinish']);
         
         //启动程序
+	echo "启动程序\n";
         $this->serv->start();
     }
 }
