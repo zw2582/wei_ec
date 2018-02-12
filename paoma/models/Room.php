@@ -3,6 +3,7 @@ namespace paoma\models;
 
 use yii\base\Model;
 use yii\base\UserException;
+use console\modules\paoma\models\PaomaRoomScore;
 
 /**
  * 房间，redis存储
@@ -40,7 +41,15 @@ class Room extends Model{
      */
     public static function findOne($roomNo) {
         $redis = \Yii::$app->redis;
-        return $redis->get(self::prefix.$roomNo);
+        $data = $redis->hgetall(self::prefix.$roomNo);
+        
+        $result = [];
+        foreach ($data as $k=>$v) {
+            if ($k % 2 == 0) {
+                $result[$v] = $data[$k+1];
+            }
+        }
+        return $result;
     }
 
     /**
@@ -83,7 +92,10 @@ class Room extends Model{
             if ($oldRoomNo == $roomNo) {
                 return;
             } else {
+                //退出原来的房间
                 PaomaRoomUsers::exitRoom($oldRoomNo, $user->uuid);
+                //退出原来的比赛队列
+                PaomaRoomScore::remove($oldRoomNo, $user->uuid);
             }
         }
         //用户进入房间

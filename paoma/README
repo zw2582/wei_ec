@@ -1,3 +1,4 @@
+请求数据
 1.连接
 url:127.0.0.1:9501
 参数：
@@ -63,4 +64,48 @@ url:127.0.0.1:9501
 	message:错误信息,
 	data:{
 		action:"prepare"
+	}
+
+返回信息
+1.错误信息
+	status:0,
+	message:错误描述
+	
+2.开始通知
+	status:1,
+	data:{
+		action:'start'
+	}
+	
+3.摇晃数据
+	status:1,
+	data:{
+		action:'play',
+		data:比赛结果数据
+	}
+	
+4.结束通知
+	status:1,
+	data:{
+		action:'comple'
+	}
+	
+5.准备通知
+	status:1,
+	data:{
+		action:'prepare'
+	}
+
+6.有用户加入房间
+	status:1
+	data:{
+		action:'join',
+		data:人员数据
+	}
+	
+7.当前房间用户总数
+	status:1
+	data:{
+		action:'member_count',
+		data:人员总数
 	}

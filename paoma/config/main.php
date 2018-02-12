@@ -34,7 +34,7 @@ return [
             'keyPrefix'=>'PHPREDIS_SESSION:',
             'timeOut' => 3600,
             'cookieParams' => [
-                'domain' => '.'.HTTP_SUFFIX,
+                'domain' => 'paoma.com',
                 'lifetime' => 3600,
                 'httpOnly' => TRUE,
                 'path' => '/'

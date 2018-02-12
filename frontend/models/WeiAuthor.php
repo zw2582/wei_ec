@@ -94,10 +94,13 @@ class WeiAuthor extends Component{
     }
     
     //登录
-    public function login() {
+    public function login($test = false) {
         if (!\Yii::$app->user->isGuest) {
             \Yii::info('用户已经登录', __METHOD__);
             return true;
+        }
+        if ($test) {
+            return $this->loginTest();
         }
         //1.snsapi_base获取openid
         list($code, $state) = $this->getCode('snsapi_base');
@@ -147,6 +150,16 @@ class WeiAuthor extends Component{
             }
         }
         
-        return \Yii::$app->user->login($user, 3600 * 24 * 30);
+        return \Yii::$app->user->login($user);
+    }
+    
+    public function loginTest() {
+        $user = new User();
+        $user->username = 'test';
+        $user->sex = 1;
+        $user->id = 1;
+        $user->headimgurl = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
+        
+        return \Yii::$app->user->login($user);
     }
 }

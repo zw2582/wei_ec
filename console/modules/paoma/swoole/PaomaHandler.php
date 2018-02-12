@@ -29,7 +29,8 @@ class PaomaHandler implements WebSocketHandler{
         $this->phoneFdTable->create();
     }
     
-    public function onClose(\swoole_server $server, int $fd, int $reactorId) {
+    public function onClose(\swoole_server $server, $fd, $reactorId) {
+        //判断$fd所在的手机端uuid是否存在房主房间，如果存在，则提醒用户房主已离开房间
         \Yii::info(sprintf("reactorId:%d close a fd:%d", $reactorId, $fd), 'onClose');
     }
 
@@ -50,8 +51,6 @@ class PaomaHandler implements WebSocketHandler{
         $table = $source == 'web' ? $this->webFdTable : $this->phoneFdTable;
         $oldfd = $table->get($uuid);
         if ($oldfd !== false) {
-            $svr->pause($oldfd);
-            $svr->exist($oldfd);
             $svr->stop($oldfd, true);
         } else {
             $table->set($uuid, ['fd'=>$fd]);
@@ -72,7 +71,7 @@ class PaomaHandler implements WebSocketHandler{
      * {@inheritDoc}
      * @see \paoma\console\WebSocketHandler::onTask()
      */
-    public function onTask(\swoole_server $serv, int $task_id, int $src_worker_id, $data){
+    public function onTask(\swoole_server $serv, $task_id, $src_worker_id, $data){
         //校验参数
         $data = json_decode($data);
         if (empty($data)) {
@@ -95,7 +94,7 @@ class PaomaHandler implements WebSocketHandler{
      * {@inheritDoc}
      * @see \paoma\console\WebSocketHandler::onFinish()
      */
-    public function onFinish(\swoole_server $serv, int $task_id, string $data){
+    public function onFinish(\swoole_server $serv, $task_id, $data){
         \Yii::info(sprintf("task_id:%d complete, data:%s", $task_id, $data), 'onFinish');
     }
 

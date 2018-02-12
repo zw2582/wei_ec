@@ -29,7 +29,7 @@ class PaomaUser extends Model{
      */
     public static function current($existUUid=null) {
         if (empty($existUUid)) {
-            $existUUid = \Yii::$app->session->get(self::$self->uuid);
+            $existUUid = \Yii::$app->session->get(self::sess_uuid_key);
         }
         if (self::$self == null) {
             self::$self = new self();

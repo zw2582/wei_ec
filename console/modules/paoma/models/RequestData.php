@@ -175,8 +175,7 @@ class RequestData extends Model{
             //时间到，修改房间状态
             Room::updateStatus($this->room_no, 3);
             return $this->sendSucc($fd, [
-                'action'=>'play',
-                'status'=>'comple'
+                'action'=>'comple'
             ]);
         }
         //返回跑马结果给所有用户,只需要一个task进程执行就好了，每秒返回一次
@@ -190,7 +189,8 @@ class RequestData extends Model{
                 $uuids = PaomaRoomUsers::members($this->room_no);
                 foreach ($uuids as $uuid) {
                     //获取webfd
-                    $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
+                    //$webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
+                    $phoneuserfd = $this->handler->phoneFdTable->get($uuid, 'fd');
                     //计算显示10个跑马用户
                     if ($room['uuid'] == $uuid) {
                         //如果是房主，则返回前十名的用户
@@ -198,10 +198,9 @@ class RequestData extends Model{
                     } else {
                         $data = PaomaRoomScore::listByUUid($this->room_no, $uuid);
                     }
-                    $this->sendSucc($webuserfd, [
+                    $this->sendSucc($phoneuserfd, [
                         'action'=>'play',
                         'data'=>$data,
-                        'status'=>'playing'
                     ]);
                 }
             });
@@ -266,6 +265,8 @@ class RequestData extends Model{
         }
         //修改房间比赛状态
         Room::updateStatus($this->room_no, 1);
+        //清空上一次比赛结果
+        PaomaRoomScore::clear($this->room_no);
         
         //通知房间内所有用户
         $uuids = PaomaRoomUsers::members($this->room_no);
@@ -278,6 +279,42 @@ class RequestData extends Model{
             //获取webfd
             $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
             $this->sendSucc($webuserfd, ['action'=>'prepare']);
+        }
+    }
+    
+    /**
+     * 进入房间
+     * 1.如果房间人数不超过10人，且房间不在进行中，则返回所有用户新增用户信息，如果超过则只返回所有用户当前房间用户总数，返回当前用户前10人信息
+     * 
+     * wei.w.zhou@integle.com
+     * 2018年2月12日上午10:50:17
+     */
+    public function actionEnterRoom() {
+        $currentFd = $this->handler->phoneFdTable->get($this->uuid, 'fd');
+        $count = PaomaRoomUsers::count($this->room_no);
+        $room = Room::findOne($this->room_no);
+        if (empty($room)) {
+            return $this->sendFail($currentFd, '房间'.$this->room_no.' 不存在');
+        }
+        if ($room['isactive'] == 2) {
+            $data = PaomaRoomUsers::members($this->room_no);
+            $this->sendSucc($currentFd, ['action'=>'join', 'data'=>$data]);
+        } elseif ($count < 10) {
+            //通知房间内所有用户
+            $uuids = PaomaRoomUsers::members($this->room_no);
+            foreach ($uuids as $uuid) {
+                //获取fd
+                $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
+                $data = PaomaRoomUsers::members($this->room_no);
+                $this->sendSucc($phoneFd, ['action'=>'join', 'data'=>$data]);
+            }
+        }
+        //返回所有用户人员总数
+        $uuids = PaomaRoomUsers::members($this->room_no);
+        foreach ($uuids as $uuid) {
+            //获取webfd
+            $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
+            $this->sendSucc($phoneFd, ['action'=>'member_count', 'data'=>$count]);
         }
     }
     
