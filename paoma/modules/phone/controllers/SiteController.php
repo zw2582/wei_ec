@@ -41,7 +41,7 @@ class SiteController extends BasicController{
         $data = [];
         
         if (\Yii::$app->user->isGuest) {
-            \Yii::$app->weiauthor->login(true);
+            \Yii::$app->weiauthor->login();
         }
         if (!\Yii::$app->user->isGuest) {
             $user = \Yii::$app->user->identity;
@@ -78,8 +78,8 @@ class SiteController extends BasicController{
         $roomNo = \Yii::$app->request->get('room_no');
         $uuid = \Yii::$app->request->get('uuid');
         
-        if (!\Yii::$app->user->isGuest) {
-            $user = \Yii::$app->user->identity;
+        if (\Yii::$app->user->isGuest) {
+            \Yii::$app->weiauthor->login();
         }
         
         $url = '/index.html';

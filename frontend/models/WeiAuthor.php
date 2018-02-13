@@ -18,6 +18,8 @@ class WeiAuthor extends Component{
 
     public $appsecret='f87da08f9e619ab9b95205d2f17d8dfc';
     
+    public $redirectUri;
+    
     public function init() {
         parent::init();
         if (empty($this->appid)) {
@@ -32,7 +34,7 @@ class WeiAuthor extends Component{
         }
         $code = \Yii::$app->request->get("code");
         if (is_null($code)) {
-            $redirectUri = \Yii::$app->request->absoluteUrl;
+            $redirectUri = $this->redirectUri ? : \Yii::$app->request->absoluteUrl;
 //             $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
             //$authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
             $authlink='https://nbfq.site/weiauth.php';
