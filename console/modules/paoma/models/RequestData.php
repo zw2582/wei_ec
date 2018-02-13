@@ -58,6 +58,9 @@ class RequestData extends Model{
     }
     
     public function sendFail($fd, $message, $data='') {
+        if (!$this->serv->exist($fd)) {
+            return;
+        }
         $this->serv->push($fd, json_encode([
             'status'=>0,
             'message'=>$message,
@@ -66,6 +69,9 @@ class RequestData extends Model{
     }
     
     public function sendSucc($fd, $data, $message ='') {
+        if (!$this->serv->exist($fd)) {
+            return;
+        }
         $this->serv->push($fd, json_encode([
             'status'=>1,
             'message'=>$message,
@@ -192,6 +198,10 @@ class RequestData extends Model{
                     //获取webfd
                     //$webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
                     $phoneuserfd = $this->handler->phoneFdTable->get($uuid, 'fd');
+                    if (!$this->serv->exist($phoneuserfd)) {
+                        PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+                        continue;
+                    }
                     //计算显示10个跑马用户
                     if ($room['uuid'] == $uuid) {
                         //如果是房主，则返回前十名的用户
@@ -236,12 +246,21 @@ class RequestData extends Model{
         foreach ($uuids as $uuid) {
             //获取webfd
             $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-            $this->sendSucc($phoneFd, ['action'=>'start']);
+            if ($this->serv->exist($phoneFd)) {
+                $this->sendSucc($phoneFd, ['action'=>'start']);
+            } else {
+                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+            }
+            
         }
         foreach ($uuids as $uuid) {
             //获取webfd
             $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
-            $this->sendSucc($webuserfd, ['action'=>'start']);
+            if ($this->serv->exist($webuserfd)) {
+                $this->sendSucc($webuserfd, ['action'=>'start']);
+            } else {
+                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+            }
         }
     }
     
@@ -274,12 +293,20 @@ class RequestData extends Model{
         foreach ($uuids as $uuid) {
             //获取webfd
             $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-            $this->sendSucc($phoneFd, ['action'=>'prepare']);
+            if ($this->serv->exist($phoneFd)) {
+                $this->sendSucc($phoneFd, ['action'=>'prepare']);
+            } else {
+                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+            }
         }
         foreach ($uuids as $uuid) {
             //获取webfd
             $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
-            $this->sendSucc($webuserfd, ['action'=>'prepare']);
+            if ($this->serv->exist($webuserfd)) {
+                $this->sendSucc($webuserfd, ['action'=>'prepare']);
+            } else {
+                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+            }
         }
     }
     
@@ -306,16 +333,24 @@ class RequestData extends Model{
             foreach ($uuids as $uuid) {
                 //获取fd
                 $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-                $data = PaomaRoomUsers::members($this->room_no);
-                $this->sendSucc($phoneFd, ['action'=>'join', 'data'=>$data]);
+                if ($this->serv->exist($phoneFd)) {
+                    $data = PaomaRoomUsers::members($this->room_no);
+                    $this->sendSucc($phoneFd, ['action'=>'join', 'data'=>$data]);
+                } else {
+                    PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+                }
             }
         }
         //返回所有用户人员总数
         $uuids = PaomaRoomUsers::members($this->room_no);
         foreach ($uuids as $uuid) {
-            //获取webfd
+            //获取phoneFd
             $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-            $this->sendSucc($phoneFd, ['action'=>'member_count', 'data'=>$count]);
+            if ($this->serv->exist($phoneFd)) {
+                $this->sendSucc($phoneFd, ['action'=>'member_count', 'data'=>$count]);
+            } else {
+                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
+            }
         }
     }
     
