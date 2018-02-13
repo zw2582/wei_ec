@@ -58,7 +58,7 @@ class RequestData extends Model{
     }
     
     public function sendFail($fd, $message, $data='') {
-        $this->serv->send($fd, json_encode([
+        $this->serv->push($fd, json_encode([
             'status'=>0,
             'message'=>$message,
             'data'=>$data
@@ -66,7 +66,7 @@ class RequestData extends Model{
     }
     
     public function sendSucc($fd, $data, $message ='') {
-        $this->serv->send($fd, json_encode([
+        $this->serv->push($fd, json_encode([
             'status'=>1,
             'message'=>$message,
             'data'=>$data
