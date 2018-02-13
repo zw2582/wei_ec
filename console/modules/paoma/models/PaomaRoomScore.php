@@ -29,7 +29,7 @@ class PaomaRoomScore extends Model{
         $redis = \Yii::$app->redis;
         
         //设置结束变量
-	return $redis->set(self::overkey.$roomNo, "play", "ex", self::maxtime, "nx");
+        return $redis->set(self::overkey.$roomNo, "play", "ex", self::maxtime, "nx");
     }
     
     /**
