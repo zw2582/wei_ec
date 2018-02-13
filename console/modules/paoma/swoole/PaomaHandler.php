@@ -41,7 +41,6 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onOpen()
      */
     public function onOpen(swoole_websocket_server $svr, swoole_http_request $req) {
-	echo "open\n";
         \Yii::info('连接到websocket时，根据source保存uuid和fd', 'paomahandler');
         //保存uuid和fd
         $source = $req->get['source'];
@@ -58,6 +57,7 @@ class PaomaHandler implements WebSocketHandler{
         } else {
             $table->set($uuid, ['fd'=>$fd]);
         }
+	$svr->push($fd, 'opened');
     }
 
     /**
