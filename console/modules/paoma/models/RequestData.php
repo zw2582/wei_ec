@@ -197,10 +197,6 @@ class RequestData extends Model{
                     //获取webfd
                     //$webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
                     $phoneuserfd = $this->handler->phoneFdTable->get($uuid, 'fd');
-                    if (!$this->serv->exist($phoneuserfd)) {
-                        PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-                        continue;
-                    }
                     //计算显示10个跑马用户
                     if ($room['uuid'] == $uuid) {
                         //如果是房主，则返回前十名的用户
@@ -245,21 +241,13 @@ class RequestData extends Model{
         foreach ($uuids as $uuid) {
             //获取webfd
             $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-            if ($this->serv->exist($phoneFd)) {
-                $this->sendSucc($phoneFd, ['action'=>'start']);
-            } else {
-                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-            }
+            $this->sendSucc($phoneFd, ['action'=>'start']);
             
         }
         foreach ($uuids as $uuid) {
             //获取webfd
             $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
-            if ($this->serv->exist($webuserfd)) {
-                $this->sendSucc($webuserfd, ['action'=>'start']);
-            } else {
-                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-            }
+            $this->sendSucc($webuserfd, ['action'=>'start']);
         }
     }
     
@@ -292,20 +280,12 @@ class RequestData extends Model{
         foreach ($uuids as $uuid) {
             //获取webfd
             $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-            if ($this->serv->exist($phoneFd)) {
-                $this->sendSucc($phoneFd, ['action'=>'prepare']);
-            } else {
-                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-            }
+            $this->sendSucc($phoneFd, ['action'=>'prepare']);
         }
         foreach ($uuids as $uuid) {
             //获取webfd
             $webuserfd = $this->handler->webFdTable->get($uuid, 'fd');
-            if ($this->serv->exist($webuserfd)) {
-                $this->sendSucc($webuserfd, ['action'=>'prepare']);
-            } else {
-                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-            }
+            $this->sendSucc($webuserfd, ['action'=>'prepare']);
         }
     }
     
@@ -332,12 +312,8 @@ class RequestData extends Model{
             foreach ($uuids as $uuid) {
                 //获取fd
                 $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-                if ($this->serv->exist($phoneFd)) {
-                    $data = PaomaRoomUsers::members($this->room_no);
-                    $this->sendSucc($phoneFd, ['action'=>'join', 'data'=>$data]);
-                } else {
-                    PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-                }
+                $data = PaomaRoomUsers::members($this->room_no);
+                $this->sendSucc($phoneFd, ['action'=>'join', 'data'=>$data]);
             }
         }
         //返回所有用户人员总数
@@ -345,11 +321,7 @@ class RequestData extends Model{
         foreach ($uuids as $uuid) {
             //获取phoneFd
             $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-            if ($this->serv->exist($phoneFd)) {
-                $this->sendSucc($phoneFd, ['action'=>'member_count', 'data'=>$count]);
-            } else {
-                PaomaRoomUsers::exitRoom($this->room_no, $uuid);
-            }
+            $this->sendSucc($phoneFd, ['action'=>'member_count', 'data'=>$count]);
         }
     }
     
