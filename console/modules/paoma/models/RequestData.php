@@ -58,7 +58,9 @@ class RequestData extends Model{
     }
     
     public function sendFail($fd, $message, $data='') {
-        if (!$this->serv->exist($fd)) {
+        if (!is_int($fd) || !$this->serv->exist($fd)) {
+            echo "fail fd:\n";
+            var_dump($fd);
             return;
         }
         $this->serv->push($fd, json_encode([
@@ -69,7 +71,9 @@ class RequestData extends Model{
     }
     
     public function sendSucc($fd, $data, $message ='') {
-        if (!$this->serv->exist($fd)) {
+        if (!is_int($fd) || !$this->serv->exist($fd)) {
+            echo "fail fd:\n";
+            var_dump($fd);
             return;
         }
         $this->serv->push($fd, json_encode([
