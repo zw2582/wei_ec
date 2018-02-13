@@ -82,6 +82,7 @@ class RequestData extends Model{
     public function process(PaomaHandler $handler, \swoole_server $serv) {
         $this->handler = $handler;
         $this->serv = $serv;
+	echo "process".$this->action."\n";
         switch ($this->action) {
             case 'auth_request':
                 return $this->actionAuthRequest();
@@ -228,7 +229,7 @@ class RequestData extends Model{
         }
         //修改房间比赛状态，建立比赛结束点
         Room::updateStatus($this->room_no, 2);
-        PaomaRoomScore::begin();
+        PaomaRoomScore::begin($this->room_no);
         
         //通知房间内所有用户
         $uuids = PaomaRoomUsers::members($this->room_no);
