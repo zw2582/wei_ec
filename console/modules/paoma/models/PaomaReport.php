@@ -17,7 +17,7 @@ class PaomaReport extends Model{
     public static function set($roomNo, $taskId) {
         $redis = \Yii::$app->redis;
         
-        $redis->set(self::prefix.$roomNo, $taskId, 'nx');
+        $redis->set(self::prefix.$roomNo, $taskId, 'ex', PaomaRoomScore::maxtime, 'nx');
         $tId = $redis->get(self::prefix.$roomNo);
         if ($taskId == $tId) {
             return true;
@@ -35,6 +35,11 @@ class PaomaReport extends Model{
     public static function get($roomNo) {
         $redis = \Yii::$app->redis;
         return $redis->get(self::prefix.$roomNo);
+    }
+    
+    public static function del($roomNo) {
+        $redis = \Yii::$app->redis;
+        return $redis->del(self::prefix.$roomNo);
     }
 }
 

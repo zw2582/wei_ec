@@ -11,6 +11,7 @@ use console\modules\paoma\models\PaomaAuth;
 use common\controllers\BasicController;
 use common\models\User;
 use paoma\models\PaomaRoomUsers;
+use console\modules\paoma\models\PaomaRoomScore;
 
 /**
  * 手机端用户登录
@@ -53,6 +54,7 @@ class SiteController extends BasicController{
             $data['username'] = '未知';
         }
         $paomaUser = PaomaUser::current();
+        $paomaUser->saveUser();
         $data['uid'] = $paomaUser['uid'];
         $data['uuid'] = $paomaUser['uuid'];
         $data['room_no'] = $paomaUser->currentRoomNo();
@@ -141,7 +143,7 @@ class SiteController extends BasicController{
             'master_headimg'=>$master['headimgurl'],
             'master_sex'=>$master['sex'],
             'member_count'=>PaomaRoomUsers::count($roomNo),
-            'members'=>PaomaRoomUsers::members($roomNo)
+            'members'=>PaomaRoomUsers::listByUUid($roomNo, $paomaUser->uuid)
         ]);
     }
     
@@ -190,6 +192,8 @@ class SiteController extends BasicController{
         $paomaUser = PaomaUser::current();
         $roomNo = $paomaUser->currentRoomNo();
         $room =  Room::findOne($roomNo);
+        
+        $paomaUser->saveUser();
         //判断是否是房主,是则将房间类型改为待开始
         if ($room) {
             if ($room && $room['uuid'] == $this->uuid) {
@@ -203,6 +207,35 @@ class SiteController extends BasicController{
         }
         
         return $this->actionIndex();
+    }
+    
+    /**
+     * 返回成员详细信息
+     * 
+     * wei.w.zhou@integle.com
+     * 2018年2月13日下午1:51:49
+     */
+    public function actionUsers() {
+        $uuid = \Yii::$app->request->post('uuid');
+        if (!$uuid) {
+            return $this->ajaxFail('请传入uuid');
+        }
+        if (is_array($uuid)) {
+            foreach ($uuid as $u) {
+                $uid[] = PaomaUUid::getUidByUUid($u);
+            }
+        } else {
+            $uid[] = PaomaUUid::getUidByUUid($uuid);
+        }
+        
+        $members = PaomaRoomUsers::members($roomNo);
+        $data = User::find()->select(['id as uid','username','headimgurl','sex'])->where(['id'=>$uid])->asArray()->all();
+        foreach ($data as $k=>$v) {
+            $data[$k]['uuid'] = PaomaUUid::getByUid($v['uid']);
+        }
+        $uuids = array_column($data, 'uuid');
+        $result = array_combine($uuids, $data);
+        return $this->ajaxSuccess($result);
     }
 }
 

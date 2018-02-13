@@ -2,6 +2,7 @@
 namespace paoma\models;
 
 use yii\base\Model;
+use console\modules\paoma\models\PaomaRoomScore;
 
 /**
  * 房间中的用户
@@ -42,6 +43,40 @@ class PaomaRoomUsers extends Model{
         return $redis->smembers(self::prefix.$roomNo);
     }
     
+    public static function listByUUid($roomNo, $uuid) {
+        $redis = \Yii::$app->redis;
+        
+        $members = $redis->smembers(self::prefix.$roomNo);
+        
+        $members = array_slice($members, 0, 10);
+        $memberList = [];
+        foreach ($members as $member) {
+            $memberList[$member] = [
+                'uuid'=>$member,
+                'user'=>PaomaUser::getUser($member),
+                'rank'=>0,
+                'score'=>0
+            ];
+        }
+        
+        if (count($memberList) > 5) {
+            if (array_key_exists($uuid, $memberList)) {
+                unset($memberList[$uuid]);
+            } else {
+                array_pop($memberList);
+            }
+            
+            $memberList = array_splice($memberList, 3, 0, [$uuid=>[
+                'uuid'=>$uuid,
+                'score'=>0,
+                'user'=>PaomaUser::getUser($uuid),
+                'rank'=>0
+            ]]);
+        }
+        
+        return $memberList;
+    }
+    
     public static function exist($roomNo, $uuid) {
         $redis = \Yii::$app->redis;
         
@@ -59,6 +94,8 @@ class PaomaRoomUsers extends Model{
         $redis = \Yii::$app->redis;
         
         $redis->srem(self::prefix.$roomNo, $uuid);
+        PaomaUserRoom::del($uuid);
+        PaomaRoomScore::remove($roomNo, $uuid);
     }
     
     /**

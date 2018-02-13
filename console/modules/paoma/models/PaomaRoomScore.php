@@ -4,6 +4,7 @@ namespace console\modules\paoma\models;
 use yii\base\Model;
 use paoma\models\PaomaUserRoom;
 use paoma\models\PaomaRoomUsers;
+use paoma\models\PaomaUser;
 
 /**
  * 跑马分值
@@ -82,7 +83,12 @@ class PaomaRoomScore extends Model{
         $result = [];
         foreach ($data as $k=>$v) {
             if ($k % 2 == 0) {
-                $result[$v] = $data[$k+1];
+                $result[$v] = [
+                    'uuid'=>$v,
+                    'score'=>$data[$k+1],
+                    'user'=>PaomaUser::getUser($v),
+                    'rank'=>$k+1
+                ];
             }
         }
         return $result;
@@ -102,6 +108,7 @@ class PaomaRoomScore extends Model{
         
         //放回当前用户的分值
         $score = $redis->zscore(self::prefix.$roomNo, $uuid);
+        $rank = $redis->zrank(self::prefix.$roomNo, $uuid);
         
         if (empty($score)) {
             //如果用户不在比赛中也返回前十名
@@ -113,19 +120,31 @@ class PaomaRoomScore extends Model{
         $result = [];
         foreach ($data as $k=>$v) {
             if ($k % 2 == 0) {
-                $result[$v] = $data[$k+1];
+                $result[$v] = [
+                    'uuid'=>$v,
+                    'score'=>$data[$k+1],
+                    'user'=>PaomaUser::getUser($v),
+                    'rank'=>$k+1
+                ];
             }
         }
         
-        //如果当前uuid在数组中，则移除当前元素数据，如果不在则，移除最后一位数据
-        if (array_key_exists($uuid, $result)) {
-            unset($result['uuid']);
-        } else {
-            array_pop($result);
+        if (count($result) > 5) {
+            //如果当前uuid在数组中，则移除当前元素数据，如果不在则，移除最后一位数据
+            if (array_key_exists($uuid, $result)) {
+                unset($result['uuid']);
+            } else {
+                array_pop($result);
+            }
+            
+            //将当前用户数据插入第四位
+            $result = array_splice($result, 3, 0, [$uuid=>[
+                'uuid'=>$uuid,
+                'score'=>$score,
+                'user'=>PaomaUser::getUser($uuid),
+                'rank'=>$rank
+            ]]);
         }
-        
-        //将当前用户数据插入第四位
-        $result = array_splice($result, 3, 0, [$uuid=>$score]);
         
         return $result;
     }
