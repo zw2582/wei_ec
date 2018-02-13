@@ -216,26 +216,14 @@ class SiteController extends BasicController{
      * 2018年2月13日下午1:51:49
      */
     public function actionUsers() {
-        $uuid = \Yii::$app->request->post('uuid');
-        if (!$uuid) {
-            return $this->ajaxFail('请传入uuid');
-        }
-        if (is_array($uuid)) {
-            foreach ($uuid as $u) {
-                $uid[] = PaomaUUid::getUidByUUid($u);
-            }
-        } else {
-            $uid[] = PaomaUUid::getUidByUUid($uuid);
+        $uuid = \Yii::$app->request->get('uuid');
+        $roomNo = \Yii::$app->request->get('room_no');
+        if (empty($uuid) || empty($roomNo)) {
+            return $this->ajaxFail('缺少参数');
         }
         
-        $members = PaomaRoomUsers::members($roomNo);
-        $data = User::find()->select(['id as uid','username','headimgurl','sex'])->where(['id'=>$uid])->asArray()->all();
-        foreach ($data as $k=>$v) {
-            $data[$k]['uuid'] = PaomaUUid::getByUid($v['uid']);
-        }
-        $uuids = array_column($data, 'uuid');
-        $result = array_combine($uuids, $data);
-        return $this->ajaxSuccess($result);
+        $data = PaomaRoomUsers::listByUUid($roomNo, $uuid);
+        return $this->ajaxSuccess($data);
     }
 }
 
