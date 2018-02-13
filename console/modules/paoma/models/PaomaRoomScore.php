@@ -25,11 +25,11 @@ class PaomaRoomScore extends Model{
      * wei.w.zhou@integle.com
      * 2018年2月8日上午11:14:47
      */
-    public static function begin() {
+    public static function begin($roomNo) {
         $redis = \Yii::$app->redis;
         
         //设置结束变量
-        return $redis->set(self::overkey.$roomNo, "go play", "ex".self::maxtime, "nx");
+	return $redis->set(self::overkey.$roomNo, "play", "ex", self::maxtime, "nx");
     }
     
     /**
