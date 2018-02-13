@@ -104,7 +104,7 @@ class RequestData extends Model{
             case 'exit':
                 return $this->exitRoom();
             case 'enter':
-                return $this->enterRoom();
+                return $this->actionEnterRoom();
             case 'prepare':
                 return $this->actionPrepare();  //准备：isactive:3=>1
             default:
@@ -311,25 +311,7 @@ class RequestData extends Model{
      * 2018年2月12日上午10:50:17
      */
     public function actionEnterRoom() {
-        $currentFd = $this->handler->phoneFdTable->get($this->uuid, 'fd');
         $count = PaomaRoomUsers::count($this->room_no);
-        $room = Room::findOne($this->room_no);
-        if (empty($room)) {
-            return $this->sendFail($currentFd, '房间'.$this->room_no.' 不存在');
-        }
-        if ($room['isactive'] == 2) {
-            $data = PaomaRoomUsers::members($this->room_no);
-            $this->sendSucc($currentFd, ['action'=>'join', 'data'=>$data]);
-        } elseif ($count < 10) {
-            //通知房间内所有用户
-            $uuids = PaomaRoomUsers::members($this->room_no);
-            foreach ($uuids as $uuid) {
-                //获取fd
-                $phoneFd = $this->handler->phoneFdTable->get($uuid, 'fd');
-                $data = PaomaRoomUsers::members($this->room_no);
-                $this->sendSucc($phoneFd, ['action'=>'join', 'data'=>$data]);
-            }
-        }
         //返回所有用户人员总数
         $uuids = PaomaRoomUsers::members($this->room_no);
         foreach ($uuids as $uuid) {
