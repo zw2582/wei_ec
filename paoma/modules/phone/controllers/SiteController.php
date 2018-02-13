@@ -41,7 +41,7 @@ class SiteController extends BasicController{
         $data = [];
         
         if (\Yii::$app->user->isGuest) {
-            \Yii::$app->weiauthor->login();
+            return $this->ajaxFail('登录失败');
         }
         if (!\Yii::$app->user->isGuest) {
             $user = \Yii::$app->user->identity;
