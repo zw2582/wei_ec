@@ -161,7 +161,7 @@ class RequestData extends Model{
      */
     public function actionPlay() {
         $room = Room::findOne($this->room_no);
-        $fd = $this->handler->phoneFdTable->get($this->uuid);
+        $fd = $this->handler->phoneFdTable->get($this->uuid, 'fd');
         //校验房间数据
         if (empty($room) || $room['isactive'] != 2) {
             \Yii::error('房间不存在，或房间还未开赛', 'play');
@@ -220,7 +220,7 @@ class RequestData extends Model{
      * 2018年2月8日上午11:49:21
      */
     public function actionStart() {
-        $fd = $this->handler->phoneFdTable->get($this->uuid);
+        $fd = $this->handler->phoneFdTable->get($this->uuid, 'fd');
         //检查房间是否存在,且房主已认证
         $room = Room::findOne($this->room_no);
         if (empty($room) || $room['isactive'] == 0) {
@@ -258,7 +258,7 @@ class RequestData extends Model{
      * 2018年2月9日上午9:17:06
      */
     public function actionPrepare() {
-        $fd = $this->handler->phoneFdTable->get($this->uuid);
+        $fd = $this->handler->phoneFdTable->get($this->uuid, 'fd');
         //检查房间是否存在,且房主已认证
         $room = Room::findOne($this->room_no);
         if (empty($room) || $room['isactive'] == 0) {
