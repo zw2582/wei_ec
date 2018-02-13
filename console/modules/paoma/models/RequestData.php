@@ -191,10 +191,12 @@ class RequestData extends Model{
         }
         //返回跑马结果给所有用户,只需要一个task进程执行就好了，每秒返回一次
         if (PaomaReport::set($this->room_no, $this->serv->worker_id)) {
+            echo '设定定时器汇报任务结果';
             $this->serv->tick(1000, function($id){
                 if (!PaomaRoomScore::status($this->room_no)) {
                     \Yii::info("roomno:{$this->room_no}跑马比赛已结束，清除汇报定时器", 'play');
                     $this->serv->clearTimer($id);
+                    PaomaReport::del($this->room_no);
                 }
                 //获取房间内的所有用户
                 $uuids = PaomaRoomUsers::members($this->room_no);
