@@ -54,10 +54,11 @@ class PaomaHandler implements WebSocketHandler{
         $table = $source == 'web' ? $this->webFdTable : $this->phoneFdTable;
         $oldfd = $table->get($uuid, 'fd');
         if ($oldfd !== false) {
+            echo "close oldfd:$oldfd\n";
             $svr->stop($oldfd, true);
-        } else {
-            $table->set($uuid, ['fd'=>$fd]);
-        }
+        } 
+        $table->set($uuid, ['fd'=>$fd]);
+        return Utils::sendSucc($svr, $fd, '连接成功');
     }
 
     /**
@@ -66,9 +67,10 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onMessage()
      */
     public function onMessage(\swoole_server $server, \swoole_websocket_frame $frame) {
-	echo "message\n";
+        echo "message\n";
         \Yii::info('当获取到消息时，直接转发给task:data:'.$frame->data, 'paomahandler');
         $server->task($frame->data);
+        return Utils::sendSucc($server, $frame->fd, '服务端已接收到消息，正在处理');
     }
     
     /**
@@ -77,18 +79,20 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onTask()
      */
     public function onTask(\swoole_server $serv, $task_id, $src_worker_id, $data){
-	echo "task\n";
+        echo "task\n";
         \Yii::info('执行任务:data:'.$data, 'paomahandler');
         //校验参数
-        $data = json_decode($data);
+        $data = json_decode($data, true);
         if (empty($data)) {
             //没有任何数据不做处理
+            echo sprintf("task_id:%d empty data\n", $task_id);
             \Yii::info(sprintf("task_id:%d empty data", $task_id), 'onTask');
             return;
         }
         $requestData = new RequestData();
         $requestData->attributes = $data;
         if (!$requestData->validate()) {
+            echo sprintf("task_id:%d valid fail:%s\n", $task_id, json_encode($requestData->getErrors()));
             \Yii::info(sprintf("task_id:%d valid fail:%s", $task_id, json_encode($requestData->getErrors())), 'onTask');
             return;
         }

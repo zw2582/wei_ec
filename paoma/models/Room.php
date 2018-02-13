@@ -111,7 +111,7 @@ class Room extends Model{
      * 2018年2月5日下午5:31:34
      */
     public static function updateStatus($roomNo, $status) {
-        if (!is_array($status, [0,1,2,3])) {
+        if (!in_array($status, [0,1,2,3])) {
             throw new UserException('参数不合法');
         }
         $redis = \Yii::$app->redis;

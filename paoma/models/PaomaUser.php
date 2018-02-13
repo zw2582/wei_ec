@@ -2,6 +2,7 @@
 namespace paoma\models;
 
 use yii\base\Model;
+use common\models\User;
 
 class PaomaUser extends Model{
     
@@ -19,6 +20,8 @@ class PaomaUser extends Model{
     private static $self;
     
     const sess_uuid_key = '__uuid';
+    
+    const prefix = 'paoma_user_';
     
     /**
      * 查看当前跑马用户信息
@@ -61,8 +64,8 @@ class PaomaUser extends Model{
                 self::$self->uuid = $uuid;
                 self::$self->uid = $uId;
                 self::$self->uname = $user->username;
-                self::$self->headimg = headimgurl;
-                self::$self->sex = sex;
+                self::$self->headimg = $user->headimgurl;
+                self::$self->sex = $user->sex;
             }
         }
         return self::$self;
@@ -77,6 +80,25 @@ class PaomaUser extends Model{
     
     public function setUuid($uuid) {
         
+    }
+    
+    public function saveUser() {
+        $redis = \Yii::$app->redis;
+        $uuid = $this->uuid;
+        $redis->hset(self::prefix.$uuid, 'uid', $this->uid);
+        $redis->hset(self::prefix.$uuid, 'uname', $this->uname);
+        $redis->hset(self::prefix.$uuid, 'headimg', $this->headimg);
+        $redis->hset(self::prefix.$uuid, 'sex', $this->sex);
+    }
+    
+    public static function getUser($uuid) {
+        $redis = \Yii::$app->redis;
+        return [
+            'uid'=>$redis->hget(self::prefix.$uuid, 'uid'),
+            'uname'=>$redis->hget(self::prefix.$uuid, 'uname'),
+            'headimg'=>$redis->hget(self::prefix.$uuid, 'headimg'),
+            'sex'=>$redis->hget(self::prefix.$uuid, 'sex'),
+        ];
     }
     
     /**
