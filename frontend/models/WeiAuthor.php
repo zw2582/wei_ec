@@ -34,19 +34,20 @@ class WeiAuthor extends Component{
         }
         $code = \Yii::$app->request->get("code");
         if (is_null($code)) {
-            $redirectUri = $this->redirectUri ? : \Yii::$app->request->absoluteUrl;
+            $redirectUri = $this->redirectUri ? : \Yii::$app->request->hostInfo.'/'.\Yii::$app->request->pathInfo;
 //             $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
             //$authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
             $authlink='https://nbfq.site/weiauth.php';
             $link = sprintf('%s?appid=%s&response_type=code&scope=%s&state=%s&to=weixin#wechat_redirect',
-                $authlink, $this->appid, $scope, urlencode($redirectUri).'|'.$scope);
+                $authlink, $this->appid, $scope, urlencode($redirectUri.'|'.$scope));
             
             \Yii::info('跳转链接获取code的请求:'.$link, __METHOD__);
             \Yii::$app->response->redirect($link);
             return [null,null];
         }
         $state = \Yii::$app->request->get("state");
-        $state = explode('|', $state)[1];
+        \Yii::info('获取到state:'.$state, __METHOD__);
+        $state = explode('|', urldecode($state))[1];
         \Yii::info('获取到微信认证code：'.$code, __METHOD__);
         return [$code, $state];
     }
