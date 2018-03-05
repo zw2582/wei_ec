@@ -8,7 +8,7 @@ $config = [
         ],
         'redis'=>[
             'class'=>'yii\redis\Connection',
-            'hostname'=>'127.0.0.1',
+            'hostname'=>'120.79.30.72',
             'port'=>6379,
             'database'=>0
         ]
