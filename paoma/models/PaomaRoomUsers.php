@@ -13,26 +13,33 @@ use console\modules\paoma\models\PaomaRoomScore;
 class PaomaRoomUsers extends Model{
     
     /*
-     * 存储房间内的用户，set集合类型
+     * 存储房间内的用户，list类型
      */
     const prefix = 'paoma_room_users_';
     
     /**
      * 增加用户uuid
-     * @param string $roomNo
-     * @param string $uuid
+     * @param int $roomNo 房间id
+     * @param int $uid 用户id
      * wei.w.zhou@integle.com
      * 2018年2月5日下午5:36:17
      */
-    public static function add($roomNo, $uuid) {
+    public static function add($roomNo, $uid) {
         $redis = \Yii::$app->redis;
         
-        $redis->sadd(self::prefix.$roomNo, $uuid);
+        $key = self::prefix.$roomNo;
+        
+        $userids = $redis->lrange($key, 0, -1);
+        if (in_array($uid, $userids)) {
+            \Yii::info("用户$uid已是房间$roomNo成员", 'paoma_room_users');
+            return;
+        }
+        $redis->rpush($key, $uid);
     }
     
     /**
      * 返回房间内的所有用户的uuid
-     * @param unknown $roomNo
+     * @param int $roomNo
      * @return mixed
      * wei.w.zhou@integle.com
      * 2018年2月8日上午10:35:37
@@ -40,7 +47,7 @@ class PaomaRoomUsers extends Model{
     public static function members($roomNo) {
         $redis = \Yii::$app->redis;
         
-        return $redis->smembers(self::prefix.$roomNo);
+        return $redis->lrange(self::prefix.$roomNo, 0, -1);
     }
     
     public static function listByUUid($roomNo, $uuid) {
