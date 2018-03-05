@@ -8,6 +8,7 @@ $params = array_merge(
 
 return [
     'id' => 'app-paoma',
+    'timeZone' => 'Asia/Shanghai',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'controllerNamespace' => 'paoma\controllers',
@@ -34,7 +35,7 @@ return [
             'keyPrefix'=>'PHPREDIS_SESSION:',
             'timeOut' => 3600,
             'cookieParams' => [
-                'domain' => 'paoma.com',
+                //'domain' => 'paoma.com',
                 'lifetime' => 3600,
                 'httpOnly' => TRUE,
                 'path' => '/'

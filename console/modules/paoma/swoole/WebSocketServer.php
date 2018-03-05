@@ -31,6 +31,8 @@ class WebSocketServer extends Model{
         $this->serv = new \swoole_websocket_server($this->host, $this->port);
         //设置websocket配置
         $this->serv->set([
+	    'daemonize'=>1,
+	    'log_file'=>'/tmp/paoma.log',
             'max_request'=>$this->max_request,
             'max_conn'=>$this->max_conn,
             'worker_num'=>$this->worker_num,

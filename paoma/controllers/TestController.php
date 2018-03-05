@@ -10,6 +10,10 @@ class TestController extends Controller{
     }
     
     public function actionTest() {
+	setcookie("user", "Alex Porter", time()+3600);
+	\Yii::$app->session->set('sdf',1);
+	$_SESSION['gogo'] = 'sdfs';
+	echo date('Y-m-d H:i:s', time());die;
         $redis = \Yii::$app->redis;
         
         $redis->set("cac", "caca", "ex", 8, "nx");

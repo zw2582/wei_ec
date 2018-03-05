@@ -41,7 +41,8 @@ class SiteController extends BasicController{
         $data = [];
         
         if (\Yii::$app->user->isGuest) {
-            \Yii::$app->weiauthor->login();
+            //\Yii::$app->weiauthor->login();
+	    return $this->ajaxFail('登录失败');
         }
         if (!\Yii::$app->user->isGuest) {
             $user = \Yii::$app->user->identity;
@@ -79,7 +80,9 @@ class SiteController extends BasicController{
         $uuid = \Yii::$app->request->get('uuid');
         
         if (\Yii::$app->user->isGuest) {
-            \Yii::$app->weiauthor->login();
+           if(!\Yii::$app->weiauthor->login()) {
+		return;
+	   }
         }
         
         $url = '/index.html';
