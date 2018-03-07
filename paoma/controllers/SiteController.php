@@ -3,6 +3,7 @@ namespace paoma\controllers;
 
 use yii\web\Controller;
 use dosamigos\qrcode\QrCode;
+use yii\helpers\Url;
 
 /**
  * Site controller
@@ -34,6 +35,35 @@ class SiteController extends Controller
     {
         return $this->render('index');
     }
+    
+    /**
+     * 手机端首页的唯一入口跑马首页
+     * @return string
+     * wei.w.zhou@integle.com
+     * 2018年2月9日下午3:30:44
+     */
+    public function actionPhone() {
+        $roomNo = \Yii::$app->request->get('room_no');
+        $uuid = \Yii::$app->request->get('uuid');
+        
+        if (\Yii::$app->user->isGuest) {
+            //缓存这俩参数，接下来要header跳转了
+            \Yii::$app->session->set('room_no', $roomNo);
+            \Yii::$app->session->set('uuid', $uuid);
+            if(!\Yii::$app->weiauthor->login()) {
+                return;
+            }
+            //获取上面俩参数
+            $roomNo = \Yii::$app->session->get('room_no');
+            $uuid = \Yii::$app->session->get('uuid');
+        }
+        
+        //重定向跳转
+        $url[] = '/index.html';
+        $roomNo && $url['room_no'] = $roomNo;
+        $uuid && $url['uuid'] = $uuid;
+        $this->redirect($url);
+    }
 
     /**
      * 二维码生成
@@ -47,5 +77,9 @@ class SiteController extends Controller
         $str = urldecode($str);
         
         return QrCode::png($str);
+    }
+    
+    public function actionTest() {
+        return ;
     }
 }

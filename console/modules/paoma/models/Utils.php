@@ -24,5 +24,13 @@ class Utils {
             'data'=>$data
         ]));
     }
+    
+    public static function sendTask($serv, $roomNo, $data) {
+        $serv->task(json_encode([
+            'type'=>'send_room',
+            'room_no'=>$roomNo,
+            'message'=>$data
+        ]));
+    }
 }
 

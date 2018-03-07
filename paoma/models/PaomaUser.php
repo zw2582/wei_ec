@@ -2,113 +2,66 @@
 namespace paoma\models;
 
 use yii\base\Model;
-use common\models\User;
 
 class PaomaUser extends Model{
     
-    public $uuid;
-    
+    //用户id
     public $uid;
     
+    //名称
     public $uname;
     
+    //头像地址
     public $headimg;
     
     //用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
     public $sex;
     
-    private static $self;
-    
-    const sess_uuid_key = '__uuid';
+    //当前房间号
+    public $room_no;
     
     const prefix = 'paoma_user_';
     
     /**
-     * 查看当前跑马用户信息
-     * 首先已传入的uuid为主，其次已登录的uuid为主，最后以session的uuid为主，然后才是uuid生成
-     * @return \paoma\models\PaomaUser
+     * 保存user到redis
+     * @param array $data
      * wei.w.zhou@integle.com
-     * 2018年2月5日上午10:49:25
+     * 2018年3月7日下午1:57:55
      */
-    public static function current($existUUid=null) {
-        if (empty($existUUid)) {
-            $existUUid = \Yii::$app->session->get(self::sess_uuid_key);
-        }
-        if (self::$self == null) {
-            self::$self = new self();
-            if (\Yii::$app->user->isGuest) {
-                if (empty($existUUid)) {
-                    //生成uuid，等待登录后绑定uid
-                    self::$self->uuid = uniqid();
-                } else {
-                    self::$self->uuid = $existUUid;
-                }
-                //新生成的uuid保存到session中
-                \Yii::$app->session->set(self::sess_uuid_key, self::$self->uuid);
-                self::$self->uid = 0;
-            } else {
-                $uId = \Yii::$app->user->id;
-                
-                $uuid = PaomaUUid::getByUid($uId);
-                //用户已登录，创建uuid，并绑定
-                if (empty($uuid)) {
-                    if (empty($existUUid)) {
-                        $uuid = uniqid();
-                    } else {
-                        $uuid = $existUUid;
-                    }
-                    PaomaUUid::setByUid($uId, $uuid);
-                } 
-                
-                $user = \Yii::$app->user->identity;
-                self::$self->uuid = $uuid;
-                self::$self->uid = $uId;
-                self::$self->uname = $user->username;
-                self::$self->headimg = $user->headimgurl;
-                self::$self->sex = $user->sex;
-            }
-        }
-        return self::$self;
-    }
-    
-    private $_uuid = FALSE;
-    public function getUuid() {
-        if ($this->uuid === false) {
-            
-        }
-    }
-    
-    public function setUuid($uuid) {
+    public static function saveUser($uid, $data) {
+        $redis = \Yii::$app->redis;
         
-    }
-    
-    public function saveUser() {
-        $redis = \Yii::$app->redis;
-        $uuid = $this->uuid;
-        $redis->hset(self::prefix.$uuid, 'uid', $this->uid);
-        $redis->hset(self::prefix.$uuid, 'uname', $this->uname);
-        $redis->hset(self::prefix.$uuid, 'headimg', $this->headimg);
-        $redis->hset(self::prefix.$uuid, 'sex', $this->sex);
-    }
-    
-    public static function getUser($uuid) {
-        $redis = \Yii::$app->redis;
-        return [
-            'uid'=>$redis->hget(self::prefix.$uuid, 'uid'),
-            'uname'=>$redis->hget(self::prefix.$uuid, 'uname'),
-            'headimg'=>$redis->hget(self::prefix.$uuid, 'headimg'),
-            'sex'=>$redis->hget(self::prefix.$uuid, 'sex'),
-        ];
+        $redis->hset(self::prefix.$uid, 'uid', $uid);
+        $data['uname'] && $redis->hset(self::prefix.$uid, 'uname', $data['uname']);
+        $data['headimg'] && $redis->hset(self::prefix.$uid, 'headimg', $data['headimg']);
+        $data['sex'] && $redis->hset(self::prefix.$uid, 'sex', $data['sex']);
+        $data['room_no'] && $redis->hset(self::prefix.$uid, 'room_no', $data['room_no']);
     }
     
     /**
-     * 返回当前房间
-     * @return string 房间号
+     * 从redis获取user
+     * @param unknown $uid
+     * @param string $asArray
+     * @return NULL[]|mixed[]|\paoma\models\PaomaUser
      * wei.w.zhou@integle.com
-     * 2018年2月5日下午2:34:17
+     * 2018年3月7日下午1:58:04
      */
-    public function currentRoomNo() {
-        return PaomaUserRoom::get($this->uuid);
+    public static function getUser($uid, $asArray=TRUE) {
+        $redis = \Yii::$app->redis;
+        
+        $data = [
+            'uid'=>$redis->hget(self::prefix.$uid, 'uid'),
+            'uname'=>$redis->hget(self::prefix.$uid, 'uname'),
+            'headimg'=>$redis->hget(self::prefix.$uid, 'headimg'),
+            'sex'=>$redis->hget(self::prefix.$uid, 'sex'),
+            'room_no'=>$redis->hget(self::prefix.$uid, 'room_no'),
+        ];
+        if ($asArray) {
+            return $data;
+        }
+        $user = new self();
+        $user->setAttributes($data, false);
+        return $user;
     }
     
 }

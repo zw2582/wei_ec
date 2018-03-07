@@ -1,10 +1,17 @@
 <?php
 namespace console\modules\paoma\swoole;
 
-use console\modules\paoma\models\RequestData;
 use console\modules\paoma\models\Utils;
 use swoole_http_request;
 use swoole_websocket_server;
+use paoma\models\PaomaRoomUsers;
+use console\modules\paoma\models\EnterRoomForm;
+use console\modules\paoma\models\AuthRequestForm;
+use console\modules\paoma\models\AuthConfirmForm;
+use console\modules\paoma\models\OutRoomForm;
+use console\modules\paoma\models\PrepareForm;
+use console\modules\paoma\models\StartForm;
+use console\modules\paoma\models\PlayForm;
 
 /**
  * 跑马处理
@@ -18,16 +25,33 @@ class PaomaHandler implements WebSocketHandler{
     
     public $phoneFdTable;
     
+    public $authFdTable;
+    
     public function __construct() {
-	echo "创建fd句柄表\n";
-        //创建web端fd句柄表
+	   echo "创建fd句柄表\n";
+        /**
+         * 创建web端fd句柄表
+         * key:uid
+         */
         $this->webFdTable = new \swoole_table(1000);
         $this->webFdTable->column('fd', \swoole_table::TYPE_INT);
         $this->webFdTable->create();
         
+        /**
+         * 创建手机端fd句柄表
+         * key:uid
+         */
         $this->phoneFdTable = new \swoole_table(1000);
         $this->phoneFdTable->column('fd', \swoole_table::TYPE_INT);
         $this->phoneFdTable->create();
+        
+        /**
+         * 创建认证fd句柄表
+         * key:uuid
+         */
+        $this->authFdTable = new \swoole_table(1000);
+        $this->authFdTable->column('fd', \swoole_table::TYPE_INT);
+        $this->authFdTable->create();
     }
     
     public function onClose(\swoole_server $server, $fd, $reactorId) {
@@ -46,18 +70,25 @@ class PaomaHandler implements WebSocketHandler{
         //保存uuid和fd
         $source = $req->get['source'];
         $uuid = $req->get['uuid'];
+        $uid = $req->get['uid'];
         $fd = $req->fd;
-        if (empty($source) || empty($uuid) || !in_array($source, ['web', 'phone'])) {
+        if (empty($source) || !in_array($source, ['web', 'phone'])) {
             return Utils::sendFail($svr, $fd, '缺少必须参数source,uuid');
         }
-        //保存uuid和fd
-        $table = $source == 'web' ? $this->webFdTable : $this->phoneFdTable;
-        $oldfd = $table->get($uuid, 'fd');
-        if ($oldfd !== false) {
-            echo "close oldfd:$oldfd\n";
-            $svr->stop($oldfd, true);
-        } 
-        $table->set($uuid, ['fd'=>$fd]);
+        if ($uid) {
+            //保存uid和fd
+            $table = $source == 'web' ? $this->webFdTable : $this->phoneFdTable;
+            $oldfd = $table->get($uid, 'fd');
+            if ($oldfd !== false) {
+                echo "close oldfd:$oldfd\n";
+                $svr->stop($oldfd, true);
+            }
+            $table->set($uid, ['fd'=>$fd]);
+        } elseif (!empty($uuid)) {
+            //来自web的认证请求连接
+            $this->authFdTable->set($uuid, ['fd'=>$fd]);
+        }
+        
         return Utils::sendSucc($svr, $fd, '连接成功');
     }
 
@@ -67,10 +98,75 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onMessage()
      */
     public function onMessage(\swoole_server $server, \swoole_websocket_frame $frame) {
-        echo "message\n";
-        \Yii::info('当获取到消息时，直接转发给task:data:'.$frame->data, 'paomahandler');
-        $server->task($frame->data);
-        return Utils::sendSucc($server, $frame->fd, '服务端已接收到消息，正在处理');
+        $data = json_decode($frame->data);
+        if (empty($data['action'])) {
+            echo "message:".$frame->data."\n";
+        } else {
+            echo "message:".$data['action']."\n";
+            switch ($data['action']) {
+                case 'auth_request':
+                    $model = new AuthRequestForm();
+                    $model->attributes = $data;
+                    if (!$model->save($frame, $this->authFdTable)) {
+                        printf("认证请求失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "认证请求失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+                case 'auth_confirm':
+                    $model = new AuthConfirmForm();
+                    $model->attributes = $data;
+                    if (!$model->save($server, $frame, $this->webFdTable, $this->authFdTable)) {
+                        printf("认证确认失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "认证确认失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+                case 'enter':
+                    //加入房间
+                    $enter = new EnterRoomForm();
+                    $enter->attributes = $data;
+                    if (!$enter->save($server, $this->webFdTable, $this->phoneFdTable)) {
+                        printf("加入房间失败：%s%n", current($enter->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "加入房间失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+                case 'out':
+                    //退出房间
+                    $model = new OutRoomForm();
+                    $model->attributes = $data;
+                    if (!$model->save($server)) {
+                        printf("退出房间失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "退出房间失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+                case 'prepare':
+                    //准备比赛
+                    $model = new PrepareForm();
+                    $model->attributes = $data;
+                    if (!$model->save($server)) {
+                        printf("准备比赛失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "准备比赛失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+                case 'start':
+                    //开始比赛
+                    $model = new StartForm();
+                    $model->attributes = $data;
+                    if (!$model->save($server)) {
+                        printf("开始比赛失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "开始比赛失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+                case 'play':
+                    //摇动
+                    $model = new PlayForm();
+                    $model->attributes = $data;
+                    if (!$model->save()) {
+                        printf("摇动失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, "摇动失败：%s%n", current($model->getFirstErrors()));
+                    }
+                    break;
+            }
+        }
     }
     
     /**
@@ -79,8 +175,6 @@ class PaomaHandler implements WebSocketHandler{
      * @see \paoma\console\WebSocketHandler::onTask()
      */
     public function onTask(\swoole_server $serv, $task_id, $src_worker_id, $data){
-        echo "task\n";
-        \Yii::info('执行任务:data:'.$data, 'paomahandler');
         //校验参数
         $data = json_decode($data, true);
         if (empty($data)) {
@@ -89,15 +183,26 @@ class PaomaHandler implements WebSocketHandler{
             \Yii::info(sprintf("task_id:%d empty data", $task_id), 'onTask');
             return;
         }
-        $requestData = new RequestData();
-        $requestData->attributes = $data;
-        if (!$requestData->validate()) {
-            echo sprintf("task_id:%d valid fail:%s\n", $task_id, json_encode($requestData->getErrors()));
-            \Yii::info(sprintf("task_id:%d valid fail:%s", $task_id, json_encode($requestData->getErrors())), 'onTask');
-            return;
+        if ($data['type']) {
+            switch ($data['type']) {
+                case 'send_room':
+                    //通知给房间内所有人
+                    echo "task:send_room\n";
+                    $roomNo = $data['room_no'];
+                    $message = $data['message'];
+                    $uids = PaomaRoomUsers::members($roomNo);
+                    
+                    foreach ($uids as $uid) {
+                        //获取phoneFd
+                        $fd = $this->phoneFdTable->get($this->uid, 'fd');
+                        Utils::sendSucc($serv, $fd, $message);
+                        //获取webFd
+                        $fd = $webFdTb->get($this->uid, 'fd');
+                        Utils::sendSucc($serv, $fd, $message);
+                    }
+                    break;
+            }
         }
-        //分发任务
-        return $requestData->process($this, $serv);
     }
 
     /**

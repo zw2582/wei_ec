@@ -2,7 +2,6 @@
 namespace paoma\models;
 
 use yii\base\Model;
-use console\modules\paoma\models\PaomaRoomScore;
 
 /**
  * 房间中的用户
@@ -31,9 +30,10 @@ class PaomaRoomUsers extends Model{
         
         $userids = $redis->lrange($key, 0, -1);
         if (in_array($uid, $userids)) {
-            \Yii::info("用户$uid已是房间$roomNo成员", 'paoma_room_users');
+            \Yii::info("用户{$uid}已是房间{$roomNo}成员", 'paoma_room_users');
             return;
         }
+        //加入房间
         $redis->rpush($key, $uid);
     }
     
@@ -97,12 +97,10 @@ class PaomaRoomUsers extends Model{
      * wei.w.zhou@integle.com
      * 2018年2月5日下午5:39:17
      */
-    public static function exitRoom($roomNo, $uuid) {
+    public static function del($roomNo, $uid) {
         $redis = \Yii::$app->redis;
         
-        $redis->srem(self::prefix.$roomNo, $uuid);
-        PaomaUserRoom::del($uuid);
-        PaomaRoomScore::remove($roomNo, $uuid);
+        return $redis->lrem(self::prefix.$roomNo, 0, $uid);
     }
     
     /**
