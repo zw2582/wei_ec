@@ -20,7 +20,7 @@ class AuthRequestForm extends Model{
         ];
     }
     
-    public function save(\swoole_websocket_frame $frame, \swoole_table $authFdTable) {
+    public function save(\swoole_server $server, \swoole_websocket_frame $frame, \swoole_table $authFdTable) {
         if (!$this->validate()) {
             return false;
         }

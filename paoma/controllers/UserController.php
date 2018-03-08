@@ -22,15 +22,15 @@ class UserController extends BasicController{
      */
     public function actionCurrent() {
         if (\Yii::$app->user->isGuest) {
-            $data = [];
+            /* $data = [];
             $data['headimg'] = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
             $data['sex'] = 0;
             $data['uname'] = '未知';
-            $data['uid']=0;
-        } else {
-            $data = PaomaUser::getUser(\Yii::$app->user->id);
+            $data['uid']=0; */
+            return $this->ajaxFail('请先登录');
         }
-        $data['wsaddr'] = 'ws://120.79.30.72:9502';
+        $data = PaomaUser::getUser(\Yii::$app->user->id);
+        
         return $this->ajaxSuccess($data);
     }
     

@@ -35,7 +35,12 @@ class EnterRoomForm extends Model{
         //通知房间内所有用户，新用户加入信息
         $userinfo = PaomaUser::getUser($this->uid);
         //发送给任务异步通知
-        Utils::sendTask($serv, $this->room_no, ['action'=>'join', 'user'=>$userinfo]);
+        Utils::sendTask($serv, $this->room_no, [
+            'action'=>'join', 
+            'user'=>$userinfo, 
+            'uid'=>$this->uid,
+            'room_no'=>$this->room_no
+        ]);
     }
 }
 

@@ -34,12 +34,17 @@ class PrepareForm extends Model{
             $this->addError('caca', '只有房主才能操作准备');
             return false;
         }
+        //判断房间是否正在比赛
+        if ($room['isactive'] == 2) {
+            $this->addError('caca', '房间是否正在比赛');
+            return false;
+        }
         //清除上一次比赛结果
         PaomaRoomScore::clear($this->room_no);
         //修改房间status为1
         PaomaRoom::updateStatus($this->room_no, 1);
         //通知房间内所有用户当前房间状态
-        Utils::sendTask($server, $this->room_no, ['action'=>'prepare']);
+        Utils::sendTask($server, $this->room_no, ['action'=>'prepare', 'uid'=>$this->uid]);
     }
 }
 

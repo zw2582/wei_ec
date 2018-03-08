@@ -22,9 +22,7 @@ class PlayController extends Controller{
      */
     public function actionRun() {
 	echo "start paoma websocket service\n";
-        $handler = new PaomaHandler();
-        
-        $webSocket = new WebSocketServer($handler);
+        $webSocket = new WebSocketServer();
     }
     
     public function actionTest() {

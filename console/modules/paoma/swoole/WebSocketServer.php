@@ -25,14 +25,27 @@ class WebSocketServer extends Model{
     
     public $task_worker_num = 400;  //task进程数量
     
-    public function __construct(WebSocketHandler $eventHandler) {
+    public function __construct() {
         //创建websocket进程
-	echo "创建websocket进程\n";
+	   echo "创建websocket进程\n";
         $this->serv = new \swoole_websocket_server($this->host, $this->port);
+        
+        //实例一个处理类
+        $paomaHandler = new PaomaHandler($this->serv);
+        //事件处理
+        $this->serv->on('open', [$paomaHandler, 'onOpen']);
+        $this->serv->on('message', [$paomaHandler, 'onMessage']);
+        $this->serv->on('close', [$paomaHandler, 'onClose']);
+        $this->serv->on('task', [$paomaHandler, 'onTask']);
+        $this->serv->on('finish', [$paomaHandler, 'onFinish']);
+        $this->serv->on('request', [$paomaHandler, 'onRequest']);
+    }
+    
+    public function start($daemonize=true) {
         //设置websocket配置
         $this->serv->set([
-	    'daemonize'=>1,
-	    'log_file'=>'/tmp/paoma.log',
+            'daemonize'=>$daemonize?1:0,
+            'log_file'=>'/tmp/paoma.log',
             'max_request'=>$this->max_request,
             'max_conn'=>$this->max_conn,
             'worker_num'=>$this->worker_num,
@@ -40,15 +53,9 @@ class WebSocketServer extends Model{
             'task_worker_num'=>$this->task_worker_num,
             'task_ipc_mode'=>3  //task争抢模式
         ]);
-        //事件处理
-        $this->serv->on('open', [$eventHandler, 'onOpen']);
-        $this->serv->on('message', [$eventHandler, 'onMessage']);
-        $this->serv->on('close', [$eventHandler, 'onClose']);
-        $this->serv->on('task', [$eventHandler, 'onTask']);
-        $this->serv->on('finish', [$eventHandler, 'onFinish']);
         
         //启动程序
-	echo "启动程序\n";
+        echo "启动程序\n";
         $this->serv->start();
     }
 }

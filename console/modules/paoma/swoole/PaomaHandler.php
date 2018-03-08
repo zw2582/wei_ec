@@ -19,7 +19,7 @@ use console\modules\paoma\models\PlayForm;
  *
  * 2018年2月7日下午2:36:01
  */
-class PaomaHandler implements WebSocketHandler{
+class PaomaHandler{
     
     public $webFdTable;
     
@@ -27,7 +27,11 @@ class PaomaHandler implements WebSocketHandler{
     
     public $authFdTable;
     
-    public function __construct() {
+    public $serv;
+    
+    public function __construct($serv) {
+        
+        $this->serv = $serv;
 	   echo "创建fd句柄表\n";
         /**
          * 创建web端fd句柄表
@@ -107,17 +111,21 @@ class PaomaHandler implements WebSocketHandler{
                 case 'auth_request':
                     $model = new AuthRequestForm();
                     $model->attributes = $data;
-                    if (!$model->save($frame, $this->authFdTable)) {
+                    if (!$model->save($server, $frame, $this->authFdTable)) {
                         printf("认证请求失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "认证请求失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("认证请求失败：%s%n", current($model->getFirstErrors())));
+                    } else {
+                        Utils::sendSucc($server, $frame->fd, null, '认证请求成功');
                     }
                     break;
                 case 'auth_confirm':
                     $model = new AuthConfirmForm();
                     $model->attributes = $data;
-                    if (!$model->save($server, $frame, $this->webFdTable, $this->authFdTable)) {
+                    if (!$model->save($server, $this->webFdTable, $this->authFdTable)) {
                         printf("认证确认失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "认证确认失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("认证确认失败：%s%n", current($model->getFirstErrors())));
+                    } else {
+                        Utils::sendSucc($server, $frame->fd, null, '认证确认成功');
                     }
                     break;
                 case 'enter':
@@ -126,7 +134,7 @@ class PaomaHandler implements WebSocketHandler{
                     $enter->attributes = $data;
                     if (!$enter->save($server, $this->webFdTable, $this->phoneFdTable)) {
                         printf("加入房间失败：%s%n", current($enter->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "加入房间失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("加入房间失败：%s%n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'out':
@@ -135,7 +143,7 @@ class PaomaHandler implements WebSocketHandler{
                     $model->attributes = $data;
                     if (!$model->save($server)) {
                         printf("退出房间失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "退出房间失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("退出房间失败：%s%n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'prepare':
@@ -144,7 +152,7 @@ class PaomaHandler implements WebSocketHandler{
                     $model->attributes = $data;
                     if (!$model->save($server)) {
                         printf("准备比赛失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "准备比赛失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("准备比赛失败：%s%n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'start':
@@ -153,7 +161,7 @@ class PaomaHandler implements WebSocketHandler{
                     $model->attributes = $data;
                     if (!$model->save($server)) {
                         printf("开始比赛失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "开始比赛失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("开始比赛失败：%s%n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'play':
@@ -162,8 +170,39 @@ class PaomaHandler implements WebSocketHandler{
                     $model->attributes = $data;
                     if (!$model->save()) {
                         printf("摇动失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, "摇动失败：%s%n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("摇动失败：%s%n", current($model->getFirstErrors())));
                     }
+                    break;
+            }
+        }
+    }
+    
+    public function onRequest(\swoole_http_request $request, \swoole_http_response $response) {
+        $data = $request->get;
+        if (empty($data['action'])) {
+            echo "request:".json_encode($data)."\n";
+        } else {
+            echo "request:".$data['action']."\n";
+            switch ($data['action']) {
+                case 'auth_confirm':
+                    $model = new AuthConfirmForm();
+                    $model->attributes = $data;
+                    if (!$model->save($server, $this->webFdTable, $this->authFdTable)) {
+                        printf("认证确认失败：%s%n", current($model->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("认证确认失败：%s%n", current($model->getFirstErrors())));
+                    } else {
+                        Utils::responseSucc($response, null, '认证确认成功');
+                    }
+                    break;
+                case 'out':
+                    //退出房间
+                    $model = new OutRoomForm();
+                    $model->attributes = $data;
+                    if (!$model->save($this->serv)) {
+                        printf("退出房间失败：%s%n", current($model->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("退出房间失败：%s%n", current($model->getFirstErrors())));
+                    }
+                    Utils::responseSucc($response, null, '退出房间成功');
                     break;
             }
         }
