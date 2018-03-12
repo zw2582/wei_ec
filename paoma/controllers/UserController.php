@@ -14,6 +14,10 @@ use common\models\User;
  */
 class UserController extends BasicController{
     
+    public function actionLogin() {
+        $this->redirect('/index.html');
+    }
+    
     /**
      * 当前用户信息以及websocket地址
      * 
@@ -21,6 +25,26 @@ class UserController extends BasicController{
      * 2018年3月7日下午4:20:43
      */
     public function actionCurrent() {
+        if (YII_DEBUG) {
+            //本地环境模拟用户数据
+            $user = new User();
+            $user->id = 1;
+            $user->username = 'test';
+            $user->headimgurl = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
+            if (!\Yii::$app->user->login($user)) {
+                return $this->ajaxFail('登录测试数据失败');
+            }
+            //保存用户信息到redis
+            PaomaUser::saveUser($user->id, [
+                'headimg'=>$user->headimgurl,
+                'sex'=>$user->sex,
+                'uname'=>$user->username
+            ]);
+            $data = PaomaUser::getUser(\Yii::$app->user->id);
+            
+            return $this->ajaxSuccess($data);
+            //end-模拟测试数据结束
+        }
         if (\Yii::$app->user->isGuest) {
             /* $data = [];
             $data['headimg'] = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
