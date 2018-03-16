@@ -17,13 +17,13 @@ class WebSocketServer extends Model{
     
     public $port = 9502;
     
-    public $max_request = 1000;    //worker进程超过该请求数则重启
+    public $max_request = 100;    //worker进程超过该请求数则重启
     
-    public $max_conn = 10000;   //服务器允许的最大连接数
+    public $max_conn = 100;   //服务器允许的最大连接数,超过该连接数的连接拒绝,一个连接占用224byte
     
-    public $worker_num = 4;     //worker进程数量，每个进程占40M内存
+    public $worker_num = 2;     //worker进程数量，每个进程占40M内存
     
-    public $task_worker_num = 400;  //task进程数量
+    public $task_worker_num = 2;  //task进程数量
     
     public function __construct() {
         //创建websocket进程

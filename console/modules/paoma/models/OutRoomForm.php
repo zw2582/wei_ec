@@ -37,6 +37,7 @@ class OutRoomForm extends Model{
         PaomaUser::saveUser($this->uid, ['room_no'=>0]);
         //4.通知房间内所有用户，用户退出
         Utils::sendTask($serv, $user['room_no'], ['action'=>'exit_room', 'userinfo'=>$user, 'uid'=>$this->uid]);
+        return true;
     }
 }
 

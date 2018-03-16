@@ -112,8 +112,8 @@ class PaomaHandler{
                     $model = new AuthRequestForm();
                     $model->attributes = $data;
                     if (!$model->save($server, $frame, $this->authFdTable)) {
-                        printf("认证请求失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("认证请求失败：%s%n", current($model->getFirstErrors())));
+                        printf("认证请求失败：%s\n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("认证请求失败：%s\n", current($model->getFirstErrors())));
                     } else {
                         Utils::sendSucc($server, $frame->fd, null, '认证请求成功');
                     }
@@ -122,8 +122,8 @@ class PaomaHandler{
                     $model = new AuthConfirmForm();
                     $model->attributes = $data;
                     if (!$model->save($server, $this->webFdTable, $this->authFdTable)) {
-                        printf("认证确认失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("认证确认失败：%s%n", current($model->getFirstErrors())));
+                        printf("认证确认失败：%s\n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("认证确认失败：%s\n", current($model->getFirstErrors())));
                     } else {
                         Utils::sendSucc($server, $frame->fd, null, '认证确认成功');
                     }
@@ -133,8 +133,8 @@ class PaomaHandler{
                     $enter = new EnterRoomForm();
                     $enter->attributes = $data;
                     if (!$enter->save($server, $this->webFdTable, $this->phoneFdTable)) {
-                        printf("加入房间失败：%s%n", current($enter->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("加入房间失败：%s%n", current($model->getFirstErrors())));
+                        printf("加入房间失败：%s\n", current($enter->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("加入房间失败：%s\n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'out':
@@ -142,8 +142,8 @@ class PaomaHandler{
                     $model = new OutRoomForm();
                     $model->attributes = $data;
                     if (!$model->save($server)) {
-                        printf("退出房间失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("退出房间失败：%s%n", current($model->getFirstErrors())));
+                        printf("退出房间失败：%s\n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("退出房间失败：%s\n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'prepare':
@@ -151,8 +151,8 @@ class PaomaHandler{
                     $model = new PrepareForm();
                     $model->attributes = $data;
                     if (!$model->save($server)) {
-                        printf("准备比赛失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("准备比赛失败：%s%n", current($model->getFirstErrors())));
+                        printf("准备比赛失败：%s\n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("准备比赛失败：%s\n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'start':
@@ -160,8 +160,8 @@ class PaomaHandler{
                     $model = new StartForm();
                     $model->attributes = $data;
                     if (!$model->save($server)) {
-                        printf("开始比赛失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("开始比赛失败：%s%n", current($model->getFirstErrors())));
+                        printf("开始比赛失败：%s\n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("开始比赛失败：%s\n", current($model->getFirstErrors())));
                     }
                     break;
                 case 'play':
@@ -169,8 +169,8 @@ class PaomaHandler{
                     $model = new PlayForm();
                     $model->attributes = $data;
                     if (!$model->save()) {
-                        printf("摇动失败：%s%n", current($model->getFirstErrors()));
-                        Utils::sendFail($server, $frame->fd, sprintf("摇动失败：%s%n", current($model->getFirstErrors())));
+                        printf("摇动失败：%s\n", current($model->getFirstErrors()));
+                        Utils::sendFail($server, $frame->fd, sprintf("摇动失败：%s\n", current($model->getFirstErrors())));
                     }
                     break;
             }
@@ -187,11 +187,22 @@ class PaomaHandler{
                 case 'auth_confirm':
                     $model = new AuthConfirmForm();
                     $model->attributes = $data;
-                    if (!$model->save($server, $this->webFdTable, $this->authFdTable)) {
-                        printf("认证确认失败：%s%n", current($model->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("认证确认失败：%s%n", current($model->getFirstErrors())));
+                    if (!$model->save($this->serv, $this->webFdTable, $this->authFdTable)) {
+                        printf("认证确认失败：%s\n", current($model->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("认证确认失败：%s\n", current($model->getFirstErrors())));
                     } else {
                         Utils::responseSucc($response, null, '认证确认成功');
+                    }
+                    break;
+                case 'enter':
+                    //加入房间
+                    $enter = new EnterRoomForm();
+                    $enter->attributes = $data;
+                    if (!$enter->save($this->serv, $this->webFdTable, $this->phoneFdTable)) {
+                        printf("加入房间失败：%s\n", current($enter->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("加入房间失败：%s\n", current($enter->getFirstErrors())));
+                    } else {
+                        Utils::responseSucc($response, null, '加入房间成功');
                     }
                     break;
                 case 'out':
@@ -199,10 +210,33 @@ class PaomaHandler{
                     $model = new OutRoomForm();
                     $model->attributes = $data;
                     if (!$model->save($this->serv)) {
-                        printf("退出房间失败：%s%n", current($model->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("退出房间失败：%s%n", current($model->getFirstErrors())));
+                        printf("退出房间失败：%s\n", current($model->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("退出房间失败：%s\n", current($model->getFirstErrors())));
+                    } else {
+                        Utils::responseSucc($response, null, '退出房间成功');
                     }
-                    Utils::responseSucc($response, null, '退出房间成功');
+                    break;
+                case 'prepare':
+                    //准备比赛
+                    $model = new PrepareForm();
+                    $model->attributes = $data;
+                    if (!$model->save($this->serv)) {
+                        printf("准备比赛失败：%s\n", current($model->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("准备比赛失败：%s\n", current($model->getFirstErrors())));
+                    } else {
+                        Utils::responseSucc($response, null, '准备比赛成功');
+                    }
+                    break;
+                case 'start':
+                    //开始比赛
+                    $model = new StartForm();
+                    $model->attributes = $data;
+                    if (!$model->save($this->serv)) {
+                        printf("开始比赛失败：%s\n", current($model->getFirstErrors()));
+                        Utils::responseFail($response, sprintf("开始比赛失败：%s\n", current($model->getFirstErrors())));
+                    } else {
+                        Utils::responseSucc($response, null, '开始比赛成功');
+                    }
                     break;
             }
         }
@@ -233,10 +267,10 @@ class PaomaHandler{
                     
                     foreach ($uids as $uid) {
                         //获取phoneFd
-                        $fd = $this->phoneFdTable->get($this->uid, 'fd');
+                        $fd = $this->phoneFdTable->get($uid, 'fd');
                         Utils::sendSucc($serv, $fd, $message);
                         //获取webFd
-                        $fd = $webFdTb->get($this->uid, 'fd');
+                        $fd = $this->webFdTable->get($uid, 'fd');
                         Utils::sendSucc($serv, $fd, $message);
                     }
                     break;

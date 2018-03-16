@@ -89,6 +89,7 @@ class SiteController extends Controller
     }
     
     public function actionTest() {
-        return ;
+        PaomaUser::saveUser(1, ['room_no'=>0]);
+        printf("退出房间失败：%s\n", 'sdfs');
     }
 }

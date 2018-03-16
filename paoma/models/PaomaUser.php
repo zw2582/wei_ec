@@ -32,10 +32,10 @@ class PaomaUser extends Model{
         $redis = \Yii::$app->redis;
         
         $redis->hset(self::prefix.$uid, 'uid', $uid);
-        $data['uname'] && $redis->hset(self::prefix.$uid, 'uname', $data['uname']);
-        $data['headimg'] && $redis->hset(self::prefix.$uid, 'headimg', $data['headimg']);
-        $data['sex'] && $redis->hset(self::prefix.$uid, 'sex', $data['sex']);
-        $data['room_no'] && $redis->hset(self::prefix.$uid, 'room_no', $data['room_no']);
+        isset($data['uname']) && $redis->hset(self::prefix.$uid, 'uname', $data['uname']);
+        isset($data['headimg']) && $redis->hset(self::prefix.$uid, 'headimg', $data['headimg']);
+        isset($data['sex']) && $redis->hset(self::prefix.$uid, 'sex', $data['sex']);
+        isset($data['room_no']) && $redis->hset(self::prefix.$uid, 'room_no', $data['room_no']);
     }
     
     /**

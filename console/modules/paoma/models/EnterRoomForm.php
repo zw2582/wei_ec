@@ -41,6 +41,7 @@ class EnterRoomForm extends Model{
             'uid'=>$this->uid,
             'room_no'=>$this->room_no
         ]);
+        return true;
     }
 }
 

@@ -61,7 +61,7 @@ class PaomaRoom extends Model{
     public static function create(PaomaUser $user) {
         $redis = \Yii::$app->redis;
         $roomNo = $redis->incr(self::db_room_no);
-        \Yii::info(sprintf("uuid:%s 创建房间:%s", $user->uuid, $roomNo), __METHOD__);
+        \Yii::info(sprintf("uid:%s 创建房间:%s", $user->uid, $roomNo), __METHOD__);
         
         //房间基本信息
         $redis->hset(self::prefix.$roomNo, 'room_no', $roomNo);

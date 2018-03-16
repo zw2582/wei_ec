@@ -34,6 +34,7 @@ class Utils {
     }
     
     public static function responseFail(\swoole_http_response $response, $message='', $data = '') {
+        $response->header('Access-Control-Allow-Origin', '*');
         $response->header('Content-Type', 'application/json');
         $response->end(json_encode([
             'status'=>0,
@@ -44,6 +45,7 @@ class Utils {
     
     public static function responseSucc(\swoole_http_response $response, $data = '', $message='') {
         $response->header('Content-Type', 'application/json');
+        $response->header('Access-Control-Allow-Origin', '*');
         $response->end(json_encode([
             'status'=>1,
             'message'=>$message,

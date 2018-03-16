@@ -8,6 +8,7 @@ use paoma\models\PaomaRoom;
 use paoma\models\PaomaRoomUsers;
 use common\models\User;
 use paoma\models\PaomaRoomScore;
+use yii\db\Expression;
 
 /**
  * 房间管理
@@ -41,6 +42,7 @@ class RoomController extends BasicController{
         $userIds = PaomaRoomUsers::members($roomNo);
         
         $users = User::find()->select('id as uid,username as uname,sex,headimgurl headimg')
+            ->addSelect(new Expression('0 as score,0.5 as rate'))
             ->where(['id'=>$userIds])->asArray()->all();
         
         return $this->ajaxSuccess($users);
@@ -72,7 +74,10 @@ class RoomController extends BasicController{
         //查询几乎所有的分值
         $data = PaomaRoomScore::listScores($roomNo,0,1000);
         
-        return $this->ajaxSuccess($data);
+        return $this->ajaxSuccess([
+            'max'=>max(array_values($data)),
+            'result'=>$data
+        ]);
     }
     
     /**
@@ -84,11 +89,15 @@ class RoomController extends BasicController{
             return $this->ajaxFail('请先登录');
         }
         $user = PaomaUser::getUser(\Yii::$app->user->id, FALSE);
-        if (!$user['room_no']) {
+        \Yii::info(json_encode($user), __METHOD__);
+        if ($user['room_no']) {
             return $this->ajaxFail('请先退出当前所在房间');
         }
         //创建房间
         $roomNo = PaomaRoom::create($user);
+        
+        //保存当前创建的房间
+        PaomaUser::saveUser(\Yii::$app->user->id, ['room_no'=>$roomNo]);
 
         return $this->ajaxSuccess($roomNo, '创建成功');
     }

@@ -3367,5 +3367,37 @@
             "yii2"
         ],
         "abandoned": "2amigos/qrcode-library"
+    },
+    {
+        "name": "eaglewu/swoole-ide-helper",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/eaglewu/swoole-ide-helper.git",
+            "reference": "bbee1dd9f7f879b930ea4ab07ca95f7a4df72efa"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/eaglewu/swoole-ide-helper/bbee1dd9f7f879b930ea4ab07ca95f7a4df72efa.zip",
+            "reference": "bbee1dd9f7f879b930ea4ab07ca95f7a4df72efa",
+            "shasum": ""
+        },
+        "time": "2018-02-26T05:38:44+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-4": {
+                "Swoole\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "authors": [
+            {
+                "name": "eagle",
+                "email": "eaglewudi@gmail.com"
+            }
+        ],
+        "description": "Swoole 在IDE下自动识别类、函数、宏，自动补全函数名"
     }
 ]

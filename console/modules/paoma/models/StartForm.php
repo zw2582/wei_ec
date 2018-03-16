@@ -42,6 +42,7 @@ class StartForm extends Model{
         PaomaRoom::updateStatus($this->room_no, 2);
         //通知房间内所有用户当前房间状态
         Utils::sendTask($server, $this->room_no, ['action'=>'start']);
+        return true;
     }
 }
 

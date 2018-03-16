@@ -25,7 +25,15 @@ class PlayController extends Controller{
     }
     
     public function actionTest() {
-
+        $phoneFdTable = new \swoole_table(1000);
+        $phoneFdTable->column('fd', \swoole_table::TYPE_INT);
+        $phoneFdTable->create();
+        
+        $phoneFdTable->set(1, ['fd'=>23]);
+        
+        $fd = $phoneFdTable->get(1, 'fd');
+        
+        var_dump($fd);
     }
 }
 

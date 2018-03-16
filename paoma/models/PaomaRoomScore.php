@@ -67,7 +67,7 @@ class PaomaRoomScore extends Model{
     }
     
     /**
-     * 显示scores分值
+     * 显示scores分值,从低到高
      * @param unknown $roomNo
      * @return mixed[]
      * wei.w.zhou@integle.com

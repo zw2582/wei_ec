@@ -50,11 +50,12 @@ class AuthConfirmForm extends Model{
         $authFdTb->del($this->uuid);
         
         //发送uuid，uid到authFdTable中
-        return Utils::sendSucc($serv, $authfd, [
+        Utils::sendSucc($serv, $authfd, [
             'action'=>'auth_confirm',
             'uuid'=>$this->uuid,
             'uid'=>$this->uid
         ]);
+        return true;
     }
 }
 
