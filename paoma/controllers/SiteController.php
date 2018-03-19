@@ -53,19 +53,22 @@ class SiteController extends Controller
             \Yii::$app->session->set('room_no', $roomNo);
             \Yii::$app->session->set('uuid', $uuid);
             if(!\Yii::$app->weiauthor->login()) {
-                //登录之后保存用户信息到redis中
-                $user = \Yii::$app->user->identity;
-                PaomaUser::saveUser($user->id, [
-                    'headimg'=>$user->headimgurl,
-                    'sex'=>$user->sex,
-                    'uname'=>$user->username
-                ]);
                 return;
             }
-            //获取上面俩参数
-            $roomNo = \Yii::$app->session->get('room_no');
-            $uuid = \Yii::$app->session->get('uuid');
+        } 
+        $redisUser = PaomaUser::getUser(\Yii::$app->user->id);
+        if (empty($redisUser)) {
+            //登录之后保存用户信息到redis中
+            $user = \Yii::$app->user->identity;
+            PaomaUser::saveUser($user->id, [
+                'headimg'=>$user->headimgurl,
+                'sex'=>$user->sex,
+                'uname'=>$user->username
+            ]);
         }
+        //获取上面俩参数
+        $roomNo = \Yii::$app->session->get('room_no');
+        $uuid = \Yii::$app->session->get('uuid');
         
         //重定向跳转
         $url[] = '/index.html';
