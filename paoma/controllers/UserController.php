@@ -25,7 +25,7 @@ class UserController extends BasicController{
      * 2018年3月7日下午4:20:43
      */
     public function actionCurrent() {
-        if (YII_DEBUG) {
+        if (false) {
             //本地环境模拟用户数据
             $user = new User();
             $user->id = 1;
