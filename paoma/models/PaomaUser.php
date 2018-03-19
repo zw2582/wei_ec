@@ -49,8 +49,12 @@ class PaomaUser extends Model{
     public static function getUser($uid, $asArray=TRUE) {
         $redis = \Yii::$app->redis;
         
+        $uid = hget(self::prefix.$uid, 'uid');
+        if (empty($uid)) {
+            return [];
+        }
         $data = [
-            'uid'=>$redis->hget(self::prefix.$uid, 'uid'),
+            'uid'=>$uid,
             'uname'=>$redis->hget(self::prefix.$uid, 'uname'),
             'headimg'=>$redis->hget(self::prefix.$uid, 'headimg'),
             'sex'=>$redis->hget(self::prefix.$uid, 'sex'),
