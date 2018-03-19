@@ -67,6 +67,7 @@ class RoomController extends BasicController{
             $result = PaomaRoomScore::listScores($roomNo);
             $rank = PaomaRoomScore::rank($roomNo, $uid);
             return $this->ajaxReturn(2, [
+                'max'=>empty($result)?1:max(array_values($result)),
                 'rank'=>$rank,
                 'result'=>$result
             ], '比赛已结束');
@@ -74,8 +75,11 @@ class RoomController extends BasicController{
         //查询几乎所有的分值
         $data = PaomaRoomScore::listScores($roomNo,0,1000);
         
+        $rank = PaomaRoomScore::rank($roomNo, $uid);
+        
         return $this->ajaxSuccess([
-            'max'=>max(array_values($data)),
+            'max'=>empty($data)?1:max(array_values($data)),
+            'rank'=>$rank,
             'result'=>$data
         ]);
     }

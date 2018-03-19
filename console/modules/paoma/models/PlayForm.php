@@ -24,7 +24,7 @@ class PlayForm extends Model{
         ];
     }
     
-    public function save() {
+    public function save(\swoole_server $server, $fd) {
         //获取用户
         $user = PaomaUser::getUser($this->uid);
         if (empty($user)) {
@@ -42,14 +42,21 @@ class PlayForm extends Model{
             return false;
         }
         if ($room['isactive'] == 3) {
-            $this->addError('play', '比赛已结束');
-            return false;
+            Utils::sendSucc($server, $fd, [
+                'action'=>'play',
+                'over'=>1
+            ]);
+            return true;
         }
         //增加步数
         if (!PaomaRoomScore::add($user['room_no'], $this->uid, $this->count)) {
-            $this->addError('play', '比赛已结束');
-            return false;
+            Utils::sendSucc($server, $fd, [
+                'action'=>'play',
+                'over'=>1
+            ]);
+            return true;
         }
+        return true;
     }
 }
 

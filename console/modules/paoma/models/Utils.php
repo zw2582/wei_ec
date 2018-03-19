@@ -11,7 +11,7 @@ class Utils {
             'status'=>0,
             'message'=>$message,
             'data'=>$data
-        ]));
+        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
     }
     
     public static function sendSucc($svr, $fd, $data='', $message = '') {
@@ -22,7 +22,7 @@ class Utils {
             'status'=>1,
             'message'=>$message,
             'data'=>$data
-        ]));
+        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
     }
     
     public static function sendTask($serv, $roomNo, $data) {
@@ -40,7 +40,7 @@ class Utils {
             'status'=>0,
             'message'=>$message,
             'data'=>$data
-        ]));
+        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
     }
     
     public static function responseSucc(\swoole_http_response $response, $data = '', $message='') {
@@ -50,7 +50,7 @@ class Utils {
             'status'=>1,
             'message'=>$message,
             'data'=>$data
-        ]));
+        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
     }
 }
 

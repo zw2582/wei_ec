@@ -12,10 +12,8 @@ class BasicController extends Controller{
             return false;
         }
         if (YII_DEBUG) {
-            header('Access-Control-Allow-Origin:http://127.0.0.1:8080');
+            header('Access-Control-Allow-Origin:http://192.168.90.50:8080');
             header('Access-Control-Allow-Credentials:true');
-            header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-            header('Access-Control-Allow-Methods:GET,POST,PATCH,PUT,OPTIONS');
         }
         return true;
     }
@@ -41,7 +39,7 @@ class BasicController extends Controller{
             'status'=>$status,
             'data'=>$data,
             'message'=>$message
-        ]);
+        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
         die;
     }
 }
