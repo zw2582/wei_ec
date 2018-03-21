@@ -34,6 +34,13 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $result = [
+            'a'=>23,
+            'b'=>12
+        ];
+        $da = array_flip(array_keys($result));
+        
+        print_r($da);
         echo 'paoma';die;
         return $this->render('index');
     }
