@@ -42,7 +42,7 @@ class RoomController extends BasicController{
         $userIds = PaomaRoomUsers::members($roomNo);
         
         $users = User::find()->select('id as uid,username as uname,sex,headimgurl headimg')
-            ->addSelect(new Expression('0 as score,0.5 as rate'))
+            //->addSelect(new Expression('0 as score,0.5 as rate'))
             ->where(['id'=>$userIds])->asArray()->all();
         
         return $this->ajaxSuccess($users);
@@ -69,7 +69,8 @@ class RoomController extends BasicController{
             return $this->ajaxReturn(2, [
                 'max'=>empty($result)?1:max(array_values($result)),
                 'rank'=>$rank,
-                'result'=>$result
+                'result'=>$result,
+                'ranks'=>empty($result)?[]:array_flip(array_keys($result))
             ], '比赛已结束');
         }
         //查询几乎所有的分值
@@ -80,7 +81,8 @@ class RoomController extends BasicController{
         return $this->ajaxSuccess([
             'max'=>empty($data)?1:max(array_values($data)),
             'rank'=>$rank,
-            'result'=>$data
+            'result'=>$data,
+            'ranks'=>empty($data)?[]:array_flip(array_keys($data))
         ]);
     }
     
