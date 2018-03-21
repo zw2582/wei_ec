@@ -27,6 +27,9 @@ class RoomController extends BasicController{
         $roomNo = \Yii::$app->request->get('room_no');
         
         $room = PaomaRoom::findOne($roomNo);
+        if (empty($room)) {
+            return $this->ajaxFail('房间不存在');
+        }
         return $this->ajaxSuccess($room);
     }
     
