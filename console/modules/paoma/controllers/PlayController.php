@@ -21,7 +21,7 @@ class PlayController extends Controller{
     public function actionRun() {
 	echo "start paoma websocket service\n";
         $webSocket = new WebSocketServer();
-        $webSocket->start(false);
+        $webSocket->start(true);
     }
     
     public function actionTest() {
