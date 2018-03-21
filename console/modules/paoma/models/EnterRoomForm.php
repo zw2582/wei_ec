@@ -4,6 +4,7 @@ namespace console\modules\paoma\models;
 use yii\base\Model;
 use paoma\models\PaomaRoomUsers;
 use paoma\models\PaomaUser;
+use paoma\models\PaomaRoom;
 
 /**
  * 加入房间
@@ -26,6 +27,12 @@ class EnterRoomForm extends Model{
     public function save(\swoole_server $serv, \swoole_table $webFdTb, \swoole_table $phoneFdTb) {
         //校验参数
         if (!$this->validate()) {
+            return false;
+        }
+        //判断房间是否存在
+        $room = PaomaRoom::findOne($this->room_no);
+        if (empty($room)) {
+            $this->addError('room', '房间不存在');
             return false;
         }
         //paoma_room_user加入uid记录，不可重复
