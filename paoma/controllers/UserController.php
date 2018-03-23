@@ -19,7 +19,7 @@ class UserController extends BasicController{
     }
     
     /**
-     * 当前用户信息以及websocket地址
+     * 当前用户信息
      * 
      * wei.w.zhou@integle.com
      * 2018年3月7日下午4:20:43
