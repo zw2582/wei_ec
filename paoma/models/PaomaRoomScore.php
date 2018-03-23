@@ -76,7 +76,7 @@ class PaomaRoomScore extends Model{
     public static function listScores($roomNo, $start=0, $stop=10) {
         $redis = \Yii::$app->redis;
         
-        $data = $redis->zrange(self::prefix.$roomNo, $start, $stop, 'withscores');
+        $data = $redis->zrevrange(self::prefix.$roomNo, $start, $stop, 'withscores');
         
         $result = [];
         foreach ($data as $k=>$v) {
