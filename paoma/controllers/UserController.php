@@ -19,7 +19,7 @@ class UserController extends BasicController{
     }
     
     /**
-     * 当前用户信息以及websocket地址
+     * 当前用户信息
      * 
      * wei.w.zhou@integle.com
      * 2018年3月7日下午4:20:43
@@ -27,10 +27,8 @@ class UserController extends BasicController{
     public function actionCurrent() {
         if (false) {
             //本地环境模拟用户数据
-            $user = new User();
-            $user->id = 1;
-            $user->username = 'test';
-            $user->headimgurl = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
+//             $user = User::findOne(1);
+            $user = User::findOne(2);
             if (!\Yii::$app->user->login($user)) {
                 return $this->ajaxFail('登录测试数据失败');
             }

@@ -4,6 +4,7 @@ namespace console\modules\paoma\models;
 use yii\base\Model;
 use paoma\models\PaomaRoom;
 use paoma\models\PaomaRoomScore;
+use paoma\models\PaomaRoomUsers;
 
 /**
  * 准备
@@ -40,7 +41,8 @@ class PrepareForm extends Model{
             return false;
         }
         //清除上一次比赛结果
-        PaomaRoomScore::clear($this->room_no);
+        PaomaRoomScore::clear($this->room_no, TRUE);
+        
         //修改房间status为1
         PaomaRoom::updateStatus($this->room_no, 1);
         //通知房间内所有用户当前房间状态
