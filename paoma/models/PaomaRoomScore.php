@@ -67,7 +67,7 @@ class PaomaRoomScore extends Model{
     }
     
     /**
-     * 显示scores分值,从低到高
+     * 显示scores分值,从高到低
      * @param unknown $roomNo
      * @return mixed[]
      * wei.w.zhou@integle.com
@@ -98,7 +98,7 @@ class PaomaRoomScore extends Model{
     public static function rank($roomNo, $uid) {
         $redis = \Yii::$app->redis;
         
-        return $redis->zrank(self::prefix.$roomNo, $uid);
+        return $redis->zrevrank(self::prefix.$roomNo, $uid);
     }
     
     /**
@@ -202,10 +202,20 @@ class PaomaRoomScore extends Model{
      * wei.w.zhou@integle.com
      * 2018年2月12日上午9:46:27
      */
-    public static function clear($roomNo) {
+    public static function clear($roomNo, $replay = FALSE) {
         $redis = \Yii::$app->redis;
         
         $redis->del(self::prefix.$roomNo);
+        
+        if ($replay) {
+            //倒入房间内的所有用户到比分中
+            $users = PaomaRoomUsers::members($roomNo);
+            if (!empty($users)) {
+                foreach ($users as $uid) {
+                    $redis->zadd(self::prefix.$roomNo, 0, $uid);
+                }
+            }
+        }
     }
     
     
