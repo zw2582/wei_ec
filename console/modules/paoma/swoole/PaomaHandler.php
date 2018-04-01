@@ -12,6 +12,7 @@ use console\modules\paoma\models\OutRoomForm;
 use console\modules\paoma\models\PrepareForm;
 use console\modules\paoma\models\StartForm;
 use console\modules\paoma\models\PlayForm;
+use console\modules\paoma\tasks\SendResultTask;
 
 /**
  * 跑马处理
@@ -273,6 +274,11 @@ class PaomaHandler{
                         $fd = $this->webFdTable->get($uid, 'fd');
                         Utils::sendSucc($serv, $fd, $message);
                     }
+                    break;
+                case 'send_result':
+                    //发送比赛结果给房间所有人
+                    echo "task:send_result\n";
+                    SendResultTask::execute($serv, $data);
                     break;
             }
         }

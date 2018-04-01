@@ -25,11 +25,20 @@ class Utils {
         ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT));
     }
     
+    //发送一个任务，该任务可以给房间所有用户推送指定的信息
     public static function sendTask($serv, $roomNo, $data) {
         $serv->task(json_encode([
             'type'=>'send_room',
             'room_no'=>$roomNo,
             'message'=>$data
+        ]));
+    }
+    
+    //发送一个任务，该任务将比赛结果定时发送给房间所有用户，直到比赛结束
+    public static function sendResultTask($serv, $roomNo) {
+        $serv->task(json_encode([
+            'type'=>'send_result',
+            'room_no'=>$roomNo
         ]));
     }
     
