@@ -11,7 +11,7 @@ use console\modules\paoma\models\Utils;
  */
 class SendResultTask {
     
-    private const mstime = 1000;
+    const mstime = 1000;
     
     public static function execute(\swoole_server $serv, $data) {
         $roomNo = $data['room_no'];
