@@ -11,7 +11,7 @@ use console\modules\paoma\models\Utils;
  */
 class SendResultTask {
     
-    private static $mstime = 1000;
+    private const mstime = 1000;
     
     public static function execute(\swoole_server $serv, $data) {
         $roomNo = $data['room_no'];
@@ -26,6 +26,7 @@ class SendResultTask {
             $ranks = empty($result)?[]:array_flip(array_keys($result));
             
             //发送给房间所有用户
+            echo '发送结果',PHP_EOL;
             Utils::sendTask($serv, $roomNo, [
                 'action'=>'result',
                 'max'=>$max,
@@ -38,6 +39,7 @@ class SendResultTask {
                 PaomaRoom::updateStatus($roomNo, 3);
                 //@todo分配奖金,也可能留给展示排名的时候
                 //告知所有人员比赛结束,停止推送结果
+                echo '发送停止',PHP_EOL;
                 Utils::sendTask($serv, $roomNo, ['action'=>'stop']);
                 //结束定时器
                 $serv->clearTimer($tickId);

@@ -13,6 +13,7 @@ use console\modules\paoma\models\PrepareForm;
 use console\modules\paoma\models\StartForm;
 use console\modules\paoma\models\PlayForm;
 use console\modules\paoma\tasks\SendResultTask;
+use console\modules\paoma\tasks\SendTask;
 
 /**
  * 跑马处理
@@ -30,7 +31,19 @@ class PaomaHandler{
     
     public $serv;
     
-    public function __construct($serv) {
+    private static $self;
+    
+    public static function getInstance(\swoole_server $serv = NULL) {
+        if (!self::$self instanceof PaomaHandler) {
+            if (empty($serv)) {
+                throw new \Exception('实例化PaomaHandler缺少serv');
+            }
+            self::$self = new self($serv);
+        } 
+        return self::$self;
+    }
+    
+    private final function __construct(\swoole_server $serv) {
         
         $this->serv = $serv;
 	   echo "创建fd句柄表\n";
@@ -70,7 +83,7 @@ class PaomaHandler{
      * @see \paoma\console\WebSocketHandler::onOpen()
      */
     public function onOpen(swoole_websocket_server $svr, swoole_http_request $req) {
-	    echo "open\n";
+	    YII_DEBUG && print("open\n");
         \Yii::info('连接到websocket时，根据source保存uuid和fd', 'paomahandler');
         //保存uuid和fd
         $source = $req->get['source'];
@@ -85,7 +98,7 @@ class PaomaHandler{
             $table = $source == 'web' ? $this->webFdTable : $this->phoneFdTable;
             $oldfd = $table->get($uid, 'fd');
             if ($oldfd !== false) {
-                echo "close oldfd:$oldfd\n";
+                YII_DEBUG && print("close oldfd:$oldfd\n");
                 $svr->stop($oldfd, true);
             }
             $table->set($uid, ['fd'=>$fd]);
@@ -105,9 +118,9 @@ class PaomaHandler{
     public function onMessage(\swoole_server $server, \swoole_websocket_frame $frame) {
         $data = json_decode($frame->data, true);
         if (empty($data['action'])) {
-            echo "message:".$frame->data."\n";
+            YII_DEBUG && print("message:".$frame->data."\n");
         } else {
-            echo "message:".$data['action']."\n";
+            YII_DEBUG && print("message:".$data['action']."\n");
             switch ($data['action']) {
                 case 'auth_request':
                     $model = new AuthRequestForm();
@@ -181,9 +194,9 @@ class PaomaHandler{
     public function onRequest(\swoole_http_request $request, \swoole_http_response $response) {
         $data = $request->get;
         if (empty($data['action'])) {
-            echo "request:".json_encode($data)."\n";
+            YII_DEBUG && print("request:".json_encode($data)."\n");
         } else {
-            echo "request:".$data['action']."\n";
+            YII_DEBUG && print("request:".$data['action']."\n");
             switch ($data['action']) {
                 case 'auth_confirm':
                     $model = new AuthConfirmForm();
@@ -253,7 +266,7 @@ class PaomaHandler{
         $data = json_decode($data, true);
         if (empty($data)) {
             //没有任何数据不做处理
-            echo sprintf("task_id:%d empty data\n", $task_id);
+            YII_DEBUG && printf("task_id:%d empty data\n", $task_id);
             \Yii::info(sprintf("task_id:%d empty data", $task_id), 'onTask');
             return;
         }
@@ -261,23 +274,12 @@ class PaomaHandler{
             switch ($data['type']) {
                 case 'send_room':
                     //通知给房间内所有人
-                    echo "task:send_room\n";
-                    $roomNo = $data['room_no'];
-                    $message = $data['message'];
-                    $uids = PaomaRoomUsers::members($roomNo);
-                    
-                    foreach ($uids as $uid) {
-                        //获取phoneFd
-                        $fd = $this->phoneFdTable->get($uid, 'fd');
-                        Utils::sendSucc($serv, $fd, $message);
-                        //获取webFd
-                        $fd = $this->webFdTable->get($uid, 'fd');
-                        Utils::sendSucc($serv, $fd, $message);
-                    }
+                    YII_DEBUG && print("task:send_room\n");
+                    SendTask::execute($serv, $data);
                     break;
                 case 'send_result':
                     //发送比赛结果给房间所有人
-                    echo "task:send_result\n";
+                    YII_DEBUG && print("task:send_result\n");
                     SendResultTask::execute($serv, $data);
                     break;
             }

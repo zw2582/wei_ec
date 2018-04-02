@@ -110,7 +110,7 @@ class RoomController extends BasicController{
         return $this->ajaxSuccess([
             'rank'=>$rank,
             'money'=>$money,
-            'jefen'=>$jifen
+            'jifen'=>$jifen
         ]);
     }
     

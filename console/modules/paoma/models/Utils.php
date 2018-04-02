@@ -1,6 +1,8 @@
 <?php
 namespace console\modules\paoma\models;
 
+use console\modules\paoma\tasks\SendTask;
+
 class Utils {
     
     public static function sendFail($svr, $fd, $message = '', $data='') {
@@ -26,12 +28,18 @@ class Utils {
     }
     
     //发送一个任务，该任务可以给房间所有用户推送指定的信息
-    public static function sendTask($serv, $roomNo, $data) {
-        $serv->task(json_encode([
+    public static function sendTask(\swoole_server $serv, $roomNo, $data) {
+        $message = [
             'type'=>'send_room',
             'room_no'=>$roomNo,
             'message'=>$data
-        ]));
+        ];
+        if ($serv->taskworker) {
+            //当前为task进程，不能在发送task消息
+            SendTask::execute($serv, $message);
+        } else {
+            $serv->task(json_encode($message));
+        }
     }
     
     //发送一个任务，该任务将比赛结果定时发送给房间所有用户，直到比赛结束

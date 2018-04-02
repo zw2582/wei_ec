@@ -36,24 +36,18 @@ class PlayForm extends Model{
             return false;
         }
         //获取房间
-        $room = PaomaRoom::findOne($user['room_no']);
-        if (!$room['isactive'] || $room['isactive'] == 1) {
-            $this->addError('play', '比赛未开始');
-            return false;
-        }
-        if ($room['isactive'] == 3) {
-            Utils::sendSucc($server, $fd, [
-                'action'=>'play',
-                'over'=>1
-            ]);
-            return true;
-        }
+//         $room = PaomaRoom::findOne($user['room_no']);
+//         if (!$room['isactive'] || $room['isactive'] == 1) {
+//             //$this->addError('play', '比赛未开始');
+//             return true;
+//         }
+//         if ($room['isactive'] == 3) {
+//             //$this->addError('play', '比赛已结束');
+//             return true;
+//         }
         //增加步数
         if (!PaomaRoomScore::add($user['room_no'], $this->uid, $this->count)) {
-            Utils::sendSucc($server, $fd, [
-                'action'=>'play',
-                'over'=>1
-            ]);
+            //$this->addError('play', '摇动失败，比赛已结束');
             return true;
         }
         return true;
