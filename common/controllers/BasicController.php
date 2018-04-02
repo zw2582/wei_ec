@@ -12,7 +12,7 @@ class BasicController extends Controller{
             return false;
         }
         if (YII_DEBUG) {
-            header('Access-Control-Allow-Origin:http://192.168.90.26:8080');
+            header('Access-Control-Allow-Origin:http://192.168.40.101:8080');
             header('Access-Control-Allow-Credentials:true');
         }
         return true;

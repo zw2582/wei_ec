@@ -23,7 +23,7 @@ class WebSocketServer extends Model{
     
     public $worker_num = 2;     //worker进程数量，每个进程占40M内存
     
-    public $task_worker_num = 2;  //task进程数量
+    public $task_worker_num = 10;  //task进程数量
     
     public function __construct() {
         //创建websocket进程
@@ -31,7 +31,7 @@ class WebSocketServer extends Model{
         $this->serv = new \swoole_websocket_server($this->host, $this->port);
         
         //实例一个处理类
-        $paomaHandler = new PaomaHandler($this->serv);
+        $paomaHandler = PaomaHandler::getInstance($this->serv);
         //事件处理
         $this->serv->on('open', [$paomaHandler, 'onOpen']);
         $this->serv->on('message', [$paomaHandler, 'onMessage']);

@@ -29,8 +29,8 @@ class OutRoomForm extends Model{
         //2.paoma_room_user移除uid
         $user = PaomaUser::getUser($this->uid);
         if (!$user['room_no']) {
-            $this->addError('caca', '用户'.$this->uid.'当前没有房间');
-            return false;
+            //$this->addError('caca', '用户'.$this->uid.'当前没有房间');
+            return true;
         }
         PaomaRoomUsers::del($user['room_no'], $this->uid);
         //3.paoma_user的room_no变为0

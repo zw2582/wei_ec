@@ -54,6 +54,7 @@ class RoomController extends BasicController{
     /**
      * 查看房间成员分值接口
      * 返回2代表已结束，1.代表进行中
+     * @deprecated
      * 
      * wei.w.zhou@integle.com
      * 2018年3月7日下午4:43:23
@@ -87,6 +88,30 @@ class RoomController extends BasicController{
             'result'=>$data,
             'ranks'=>$ranks
         ], '');
+    }
+    
+    /**
+     * 查看自己的排名和奖励
+     */
+    public function actionReward() {
+        $roomNo = \Yii::$app->request->get('room_no');
+        $uid = \Yii::$app->request->get('uid');
+        
+        //查看自己的排名
+        $rank = PaomaRoomScore::rank($roomNo, $uid);
+        
+        //@todo 查看是否有奖金
+        $money = 0;
+        $jifen = 0;
+        
+        //@todo 分配奖金
+        
+        //返回结果
+        return $this->ajaxSuccess([
+            'rank'=>$rank,
+            'money'=>$money,
+            'jifen'=>$jifen
+        ]);
     }
     
     /**
