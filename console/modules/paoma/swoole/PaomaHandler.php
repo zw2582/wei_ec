@@ -14,6 +14,7 @@ use console\modules\paoma\models\StartForm;
 use console\modules\paoma\models\PlayForm;
 use console\modules\paoma\tasks\SendResultTask;
 use console\modules\paoma\tasks\SendTask;
+use paoma\models\PaomaRoomFd;
 
 /**
  * 跑马处理
@@ -86,14 +87,14 @@ class PaomaHandler{
 	    YII_DEBUG && print("open\n");
         \Yii::info('连接到websocket时，根据source保存uuid和fd', 'paomahandler');
         //保存uuid和fd
-        $source = $req->get['source'];
-        $uuid = $req->get['uuid'];
         $uid = $req->get['uid'];
         $fd = $req->fd;
-        if (empty($source) || !in_array($source, ['web', 'phone'])) {
-            return Utils::sendFail($svr, $fd, '缺少必须参数source,uuid');
-        }
+        
         if ($uid) {
+            $source = $req->get['source'];
+            if (empty($source) || !in_array($source, ['web', 'phone'])) {
+                return Utils::sendFail($svr, $fd, '缺少必须参数source');
+            }
             //保存uid和fd
             $table = $source == 'web' ? $this->webFdTable : $this->phoneFdTable;
             $oldfd = $table->get($uid, 'fd');
@@ -102,9 +103,6 @@ class PaomaHandler{
                 $svr->stop($oldfd, true);
             }
             $table->set($uid, ['fd'=>$fd]);
-        } elseif (!empty($uuid)) {
-            //来自web的认证请求连接
-            $this->authFdTable->set($uuid, ['fd'=>$fd]);
         }
         
         return Utils::sendSucc($svr, $fd, '连接成功');
@@ -146,7 +144,7 @@ class PaomaHandler{
                     //加入房间
                     $enter = new EnterRoomForm();
                     $enter->attributes = $data;
-                    if (!$enter->save($server, $this->webFdTable, $this->phoneFdTable)) {
+                    if (!$enter->save($server, $this->webFdTable, $this->phoneFdTable, $frame->fd)) {
                         printf("加入房间失败：%s\n", current($enter->getFirstErrors()));
                         Utils::sendFail($server, $frame->fd, sprintf("加入房间失败：%s", current($model->getFirstErrors())));
                     }

@@ -2,8 +2,10 @@
 namespace paoma\controllers;
 
 use yii\web\Controller;
+use common\models\User;
 use dosamigos\qrcode\QrCode;
 use yii\helpers\Url;
+use paoma\models\PaomaRoomUsers;
 use paoma\models\PaomaUser;
 
 /**
@@ -34,15 +36,17 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $result = [
-            'a'=>23,
-            'b'=>12
-        ];
-        $da = array_flip(array_keys($result));
+        $roomNo = \Yii::$app->request->get('room_no', 1);
+        $userIds = PaomaRoomUsers::members($roomNo);
         
-        print_r($da);
-        echo 'paoma';die;
-        return $this->render('index');
+        $users = User::find()->select('id as uid,username as uname,sex,headimgurl headimg')
+        //->addSelect(new Expression('0 as score,0.5 as rate'))
+        ->where(['id'=>$userIds])->asArray()->all();
+        
+        return $this->render('index', [
+            'room_no'=>$roomNo,
+            'users'=>$users
+        ]);
     }
     
     /**

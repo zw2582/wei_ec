@@ -5,6 +5,8 @@ use yii\base\Model;
 use paoma\models\PaomaRoomUsers;
 use paoma\models\PaomaUser;
 use paoma\models\PaomaRoom;
+use paoma\models\PaomaRoomFd;
+use console\modules\paoma\swoole\PaomaHandler;
 
 /**
  * 加入房间
@@ -20,11 +22,12 @@ class EnterRoomForm extends Model{
     
     public function rules() {
         return [
-            [['uid', 'room_no'], 'required']
+            [['room_no'], 'required'],
+            ['uid', 'integer']
         ];
     }
     
-    public function save(\swoole_server $serv, \swoole_table $webFdTb, \swoole_table $phoneFdTb) {
+    public function save(\swoole_server $serv, \swoole_table $webFdTb, \swoole_table $phoneFdTb, $fd=null) {
         //校验参数
         if (!$this->validate()) {
             return false;
@@ -34,6 +37,15 @@ class EnterRoomForm extends Model{
         if (empty($room)) {
             $this->addError('room', '房间不存在');
             return false;
+        }
+        if (empty($this->uid)) {
+            if (empty($fd)) {
+                $this->addError('room', '游客加入房间只能用socket');
+                return false;
+            }
+            //游客加入房间
+            PaomaRoomFd::add($this->room_no, $fd);
+            return true;
         }
         //paoma_room_user加入uid记录，不可重复
         PaomaRoomUsers::add($this->room_no, $this->uid);
