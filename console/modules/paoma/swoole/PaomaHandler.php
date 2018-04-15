@@ -87,10 +87,11 @@ class PaomaHandler{
 	    YII_DEBUG && print("open\n");
         \Yii::info('连接到websocket时，根据source保存uuid和fd', 'paomahandler');
         //保存uuid和fd
-        $uid = $req->get['uid'];
+        $get = $req->get;
         $fd = $req->fd;
         
-        if ($uid) {
+        if (isset($get['uid'])) {
+            $uid = $get['uid'];
             $source = $req->get['source'];
             if (empty($source) || !in_array($source, ['web', 'phone'])) {
                 return Utils::sendFail($svr, $fd, '缺少必须参数source');
@@ -147,6 +148,10 @@ class PaomaHandler{
                     if (!$enter->save($server, $this->webFdTable, $this->phoneFdTable, $frame->fd)) {
                         printf("加入房间失败：%s\n", current($enter->getFirstErrors()));
                         Utils::sendFail($server, $frame->fd, sprintf("加入房间失败：%s", current($model->getFirstErrors())));
+                    }
+                    if (empty($enter->uid)) {
+                        printf("游客进入房间，推出成功消息\n");
+                        Utils::sendSucc($server, $frame->fd, null, '进入房间成功');
                     }
                     break;
                 case 'out':

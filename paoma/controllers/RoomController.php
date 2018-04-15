@@ -54,40 +54,24 @@ class RoomController extends BasicController{
     /**
      * 查看房间成员分值接口
      * 返回2代表已结束，1.代表进行中
-     * @deprecated
      * 
      * wei.w.zhou@integle.com
      * 2018年3月7日下午4:43:23
      */
-    public function actionScores() {
+    public function actionResult() {
         $roomNo = \Yii::$app->request->get('room_no');
-        $uid = \Yii::$app->request->get('uid');
         
-        $state = 1; //返回值，1.进行中，2.比赛已结束
-        if (!PaomaRoomScore::status($roomNo)) {
-            //修改房间状态为已结束
-            $state = 2;
-            PaomaRoom::updateStatus($roomNo, 3);
-            //@todo分配奖金
-        }
         //查询几乎所有的分值
-        $data = PaomaRoomScore::listScores($roomNo,0,1000);
-        //查看当前用户的排名
-        $rank = PaomaRoomScore::rank($roomNo, $uid);
-        is_null($rank) && $rank = 0;
-        //计算最低分,最高分,总体排名
-        $values = array_values($data);
-        $max = empty($values) ? 1 : max($values);
-        $min = empty($values) ? 0 : min($values);
-        $ranks = empty($data)?[]:array_flip(array_keys($data));
+        $data = PaomaRoomScore::listScores($roomNo,0,100);
         
-        return $this->ajaxReturn($state, [
-            'max'=>$max,
-            'min'=>$min,
-            'rank'=>$rank,
-            'result'=>$data,
-            'ranks'=>$ranks
-        ], '');
+        $result = [];
+        foreach ($data as $key=>$val) {
+            $result[]= [
+                'user'=>PaomaUser::getUser($key),
+                'score'=>$val
+            ];
+        }
+        return $this->ajaxSuccess($result);
     }
     
     /**

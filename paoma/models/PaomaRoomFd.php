@@ -13,6 +13,12 @@ class PaomaRoomFd {
      */
     const prefix = 'paoma_room_fd_';
     
+    /*
+     * 存储fd游客所在的房间，hash
+     * fd_1=>12,fd_id=>房间号
+     */
+    const fd_room = 'paoma_fd_room';
+    
     /**
      * 增加fd
      * @param int $roomNo 房间id
@@ -23,9 +29,15 @@ class PaomaRoomFd {
     public static function add($roomNo, $fd) {
         $redis = \Yii::$app->redis;
         
-        $key = self::prefix.$roomNo;
+        //剔除旧房间
+        $oldRoomno = $redis->hget(self::fd_room, "fd_$fd");
+        if ($oldRoomno) {
+            self::del($roomNo, $fd);
+        }
         
+        $key = self::prefix.$roomNo;
         $redis->sadd($key, $fd);
+        $redis->hset(self::fd_room, "fd_$fd", $roomNo);
     }
     
     /**
@@ -46,7 +58,8 @@ class PaomaRoomFd {
         
         $key = self::prefix.$roomNo;
         
-        $redis->srem($key);
+        $redis->srem($key, $fd);
+        $redis->hdel(self::fd_room, "fd_$fd"); //删除游客的房间号
     }
 }
 

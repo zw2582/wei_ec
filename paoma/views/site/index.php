@@ -14,65 +14,11 @@
         }
     </style>
     <script src="/js/jquery.min.js"></script>
-    <script>
-        var test = 0;
-        console.log('sdfs')
-        //ws://120.79.30.72:9502
-        ws = new WebSocket("ws://127.0.0.1:9502?room_no=<?=$room_no?>&source=web");
-        // 当socket连接打开时，输入用户名
-        ws.onopen = function (event) {
-            console.log('fff');
-        };
-        // 当有消息时根据消息类型显示不同信息
-        ws.onmessage = onmessage;
-
-        function onopen(e) {
-            //console.log('f');
-        }
-        // 服务端发来消息时
-        function onmessage(evt) {
-        	//处理消息
-			var received_msg = evt.data;
-			console.log("接收到消息");
-			console.log(received_msg);
-			var msg = JSON.parse(received_msg);
-			if (!msg.status || msg.status == 0) {
-				console.log({title:'ws报错', content:msg.message})
-			} else {
-				var data = msg.data;
-				if (data.action == 'exit_room') {
-					//用户离开通知
-					console.log(data.user.uname+":离开房间")
-				} else if (data.action == 'join') {
-					//用户加入通知
-					console.log(data.user.uname+":加入房间")
-				} else if (data.action == 'prepare') {
-					//房间预备通知
-					console.log('准备中')
-				} else if (data.action == 'start') {
-					console.log('开始比赛')
-					$('.paomabeijing2').addClass('okplay')
-					$('.paomabeijing').addClass('okplay')
-					$('.tracklist').addClass('okplay')
-				} else if (data.action == 'play') {
-					
-				} else if(data.action == 'stop') {
-					console.log('比赛结束')
-					$('.paomabeijing2').removeClass('okplay')
-					$('.paomabeijing').removeClass('okplay')
-					$('.tracklist').removeClass('okplay')
-				} else if(data.action == 'result') {
-					//比赛数据推送通知
-					//_this.showRunData(data.result,data.ranks,data.max,data.min)
-				}
-			}
-        }
-    </script>
-
+    <script type="/js/index.js"></script>
 </head>
 
 <body style="background: none;margin: auto;">
-    <div class="result-layer " id="phb">
+    <div class="result-layer " style="display: none" id="phb">
         <div class="result-label" style="display: none;">GAME OVER</div>
         <div class="result-cup" style="display: block;">
             <div class="phb-b1">
@@ -146,12 +92,11 @@
 
         <div class="countdown_box">
             <div class="yyy3d_title_box game_title" style="display: block;">
-                <!-- 距离结束<span class="time-down"> 7</span> 秒 -->
                 <span class="one">游戏还未开始,敬请期待</span>
                 <span class="two"></span>
                 <span class="three"></span>
             </div>
-            参与人数: <span class="canyu"> 0 </span>
+            参与人数: <span class="canyu"> <?=count($users)?> </span>
         </div>
 
         <div class="tracklist" id="play-area">
@@ -175,70 +120,5 @@
         </div>
 
     </div>
-    <div class="phb-b3" style="text-align:center">
-        <button class="ready">准备</button>
-        <button class="start" style="">开始</button>
-        <button class="over" style="">结束</button>
-        <!-- <span class="button reset" style="color:#fff">重玩本轮</span> -->
-    </div>
 </body>
-<script type="text/javascript">
-    $('.start').hide();
-    $('.over').hide();
-    $('#phb').hide();
-    $('.ready').on('click',function(){
-        $('.canyu').html('0');
-        $(this).hide();
-        $('#phb').hide();
-        $('.start').show();
-        ws.send('{"type":"ready"}');
-    });
-
-    $('.start').on('click',function(){
-        $(this).hide();
-        $('.one').html('开始倒计时:'); 
-        $('.three').html('秒'); 
-        starttime(5);
-        // ws.send('{"type":"start"}');
-    });
-
-    $('.over').on('click',function(){
-        ws.send('{"type":"over"}');
-    });
-
-
-    
-    //显示倒数秒数  
-    function starttime(t){  
-        t -= 1;  
-        $('.two').html(t);  
-        // console.log(t);
-        if(t==0){  
-            $('.one').html('游戏结束倒计时：');
-            ws.send('{"type":"start"}'); 
-            overtime(50);
-        }else{
-            setTimeout("starttime("+t+")",1000);  
-        }
-        //每秒执行一次,starttime()  
-    }
-
-    function overtime(f){  
-        $('.two').html(f);  
-        f -= 1;  
-        
-        if(f==-1){  
-            $('.one').html('游戏结束');
-            $('.two').html('');
-            $('.three').html('');
-            ws.send('{"type":"over"}'); 
-            $('#phb').show();
-            $('.ready').show();
-        }else{
-            setTimeout("overtime("+f+")",1000);  
-        }
-        //每秒执行一次,overtime()  
-    }
-
-</script>
 </html>

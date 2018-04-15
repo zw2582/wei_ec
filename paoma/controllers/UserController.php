@@ -25,10 +25,10 @@ class UserController extends BasicController{
      * 2018年3月7日下午4:20:43
      */
     public function actionCurrent() {
-        if (false) {
+        if (YII_DEBUG) {
             //本地环境模拟用户数据
-//             $user = User::findOne(1);
-            $user = User::findOne(2);
+            $user = User::findOne(1);
+//             $user = User::findOne(2);
             if (!\Yii::$app->user->login($user)) {
                 return $this->ajaxFail('登录测试数据失败');
             }

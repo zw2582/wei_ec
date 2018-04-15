@@ -12,8 +12,17 @@ class BasicController extends Controller{
             return false;
         }
         if (YII_DEBUG) {
-            header('Access-Control-Allow-Origin:http://192.168.1.101:8080');
-            header('Access-Control-Allow-Credentials:true');
+            // 是否存在请求源
+            if(isset($_SERVER["HTTP_ORIGIN"])) {
+                header('Access-Control-Allow-Origin: '.$_SERVER["HTTP_ORIGIN"]);
+            } else {
+                header('Access-Control-Allow-Origin: null');
+            }
+            
+            header('Access-Control-Allow-Methods:OPTIONS, GET, POST');
+            header('Access-Control-Allow-Headers:x-requested-with');
+            header('Access-Control-Max-Age:86400');
+            header('Access-Control-Allow-Credentials: true');
         }
         return true;
     }

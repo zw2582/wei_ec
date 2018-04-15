@@ -4,7 +4,7 @@ $config = [
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'pR6inqs8aLsWDQe5MEJxDIt6qdVslSUT',
+            'cookieValidationKey' => '28gwOq9RpK66c6qW8BMEXIqGwTkFh4n0',
         ],
         'redis'=>[
             'class'=>'yii\redis\Connection',
@@ -20,9 +20,9 @@ if (!YII_ENV_TEST) {
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
-	'allowedIPs'=>['*.*.*.*']
+        'allowedIPs'=>['*.*.*.*']
     ];
-
+    
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',

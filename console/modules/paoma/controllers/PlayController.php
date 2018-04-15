@@ -12,6 +12,16 @@ use console\modules\paoma\swoole\WebSocketServer;
  */
 class PlayController extends Controller{
     
+    public $daemon=FALSE;
+    
+    public function options($actionId) {
+        return ['daemon'];
+    }
+    
+    public function optionAliases() {
+        return ['d'=>'daemon'];
+    }
+    
     /**
      * 建立链接
      * 
@@ -19,9 +29,11 @@ class PlayController extends Controller{
      * 2018年2月5日下午3:00:43
      */
     public function actionRun() {
-	echo "start paoma websocket service\n";
+        echo "start paoma websocket service\n";
+        
+        $daemon = $this->daemon ? true : false;
         $webSocket = new WebSocketServer();
-        $webSocket->start(true);
+        $webSocket->start($daemon);
     }
     
     public function actionTest() {

@@ -41,7 +41,6 @@ class PaomaRoom extends Model{
     public static function findOne($roomNo) {
         $redis = \Yii::$app->redis;
         $data = $redis->hgetall(self::prefix.$roomNo);
-        
         $result = [];
         foreach ($data as $k=>$v) {
             if ($k % 2 == 0) {
