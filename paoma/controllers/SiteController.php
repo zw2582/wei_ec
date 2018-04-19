@@ -72,10 +72,29 @@ class SiteController extends Controller
         $uuid = \Yii::$app->session->get('uuid');
         
         //重定向跳转
-        $url[] = '/index.html';
-        $roomNo && $url['room_no'] = $roomNo;
-        $uuid && $url['uuid'] = $uuid;
-        $this->redirect($url);
+        $url = '/index.html';
+        $roomNo && $params['room_no'] .= $roomNo;
+        $uuid && $params['uuid'] = $uuid;
+        
+        $url = $this->addGetParams($url, $params);
+        return $this->redirect($url);
+    }
+        
+    private function addGetParams($url, $params) {
+        if (empty($params)) {
+            return $url;
+        }
+        foreach ($params as $key=>$val) {
+            if (empty($val)) {
+                continue;
+            }
+            if (strpos($url, '?') === FALSE) {
+                $url.="?$key=$val";
+            } else {
+                $url.="&$key=$val";
+            }
+        }
+        return $url;
     }
 
     /**

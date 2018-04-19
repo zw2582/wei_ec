@@ -112,7 +112,7 @@ class PaomaRoomUsers extends Model{
     public static function count($roomNo) {
         $redis = \Yii::$app->redis;
         
-        return $redis->scard(self::prefix.$roomNo);
+        return $redis->llen(self::prefix.$roomNo);
     }
 }
 

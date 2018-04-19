@@ -33,18 +33,18 @@ class RedisPool extends Connection{
         }
         
         //每分钟检测redis链接是否过大
-        if (extension_loaded("swoole")) {
-            swoole_timer_tick(60*1000, function() {
-                $count = $this->pool->count();
-                \Yii::info(sprintf("timer_tick:redis pool size:%d", $count), 'redis_pool');
-                if ($count >= $this->max) {
-                    do {
-                        $conn = $this->pool->pop();
-                        $conn->close();
-                    } while($this->pool->count() <= $this->init);
-                }
-            });
-        }
+//         if (extension_loaded("swoole")) {
+//             swoole_timer_tick(60*1000, function() {
+//                 $count = $this->pool->count();
+//                 \Yii::info(sprintf("timer_tick:redis pool size:%d", $count), 'redis_pool');
+//                 if ($count >= $this->max) {
+//                     do {
+//                         $conn = $this->pool->pop();
+//                         $conn->close();
+//                     } while($this->pool->count() <= $this->init);
+//                 }
+//             });
+//         }
     }
     
     /**

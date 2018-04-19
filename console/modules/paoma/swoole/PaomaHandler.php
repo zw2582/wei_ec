@@ -15,6 +15,7 @@ use console\modules\paoma\models\PlayForm;
 use console\modules\paoma\tasks\SendResultTask;
 use console\modules\paoma\tasks\SendTask;
 use paoma\models\PaomaRoomFd;
+use console\modules\paoma\models\RoomListSearch;
 
 /**
  * 跑马处理
@@ -200,61 +201,70 @@ class PaomaHandler{
             YII_DEBUG && print("request:".json_encode($data)."\n");
         } else {
             YII_DEBUG && print("request:".$data['action']."\n");
-            switch ($data['action']) {
-                case 'auth_confirm':
-                    $model = new AuthConfirmForm();
-                    $model->attributes = $data;
-                    if (!$model->save($this->serv, $this->webFdTable, $this->authFdTable)) {
-                        printf("认证确认失败：%s\n", current($model->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("认证确认失败：%s", current($model->getFirstErrors())));
-                    } else {
-                        Utils::responseSucc($response, null, '认证确认成功');
-                    }
-                    break;
-                case 'enter':
-                    //加入房间
-                    $enter = new EnterRoomForm();
-                    $enter->attributes = $data;
-                    if (!$enter->save($this->serv, $this->webFdTable, $this->phoneFdTable)) {
-                        printf("加入房间失败：%s\n", current($enter->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("加入房间失败：%s", current($enter->getFirstErrors())));
-                    } else {
-                        Utils::responseSucc($response, null, '加入房间成功');
-                    }
-                    break;
-                case 'out':
-                    //退出房间
-                    $model = new OutRoomForm();
-                    $model->attributes = $data;
-                    if (!$model->save($this->serv)) {
-                        printf("退出房间失败：%s\n", current($model->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("退出房间失败：%s", current($model->getFirstErrors())));
-                    } else {
-                        Utils::responseSucc($response, null, '退出房间成功');
-                    }
-                    break;
-                case 'prepare':
-                    //准备比赛
-                    $model = new PrepareForm();
-                    $model->attributes = $data;
-                    if (!$model->save($this->serv)) {
-                        printf("准备比赛失败：%s\n", current($model->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("准备比赛失败：%s", current($model->getFirstErrors())));
-                    } else {
-                        Utils::responseSucc($response, null, '准备比赛成功');
-                    }
-                    break;
-                case 'start':
-                    //开始比赛
-                    $model = new StartForm();
-                    $model->attributes = $data;
-                    if (!$model->save($this->serv)) {
-                        printf("开始比赛失败：%s\n", current($model->getFirstErrors()));
-                        Utils::responseFail($response, sprintf("开始比赛失败：%s", current($model->getFirstErrors())));
-                    } else {
-                        Utils::responseSucc($response, null, '开始比赛成功');
-                    }
-                    break;
+            try {
+                switch ($data['action']) {
+                    case 'auth_confirm':
+                        $model = new AuthConfirmForm();
+                        $model->attributes = $data;
+                        if (!$model->save($this->serv, $this->webFdTable, $this->authFdTable)) {
+                            printf("认证确认失败：%s\n", current($model->getFirstErrors()));
+                            Utils::responseFail($response, sprintf("认证确认失败：%s", current($model->getFirstErrors())));
+                        } else {
+                            Utils::responseSucc($response, null, '认证确认成功');
+                        }
+                        break;
+                    case 'enter':
+                        //加入房间
+                        $enter = new EnterRoomForm();
+                        $enter->attributes = $data;
+                        if (!$enter->save($this->serv, $this->webFdTable, $this->phoneFdTable)) {
+                            printf("加入房间失败：%s\n", current($enter->getFirstErrors()));
+                            Utils::responseFail($response, sprintf("加入房间失败：%s", current($enter->getFirstErrors())));
+                        } else {
+                            Utils::responseSucc($response, null, '加入房间成功');
+                        }
+                        break;
+                    case 'out':
+                        //退出房间
+                        $model = new OutRoomForm();
+                        $model->attributes = $data;
+                        if (!$model->save($this->serv)) {
+                            printf("退出房间失败：%s\n", current($model->getFirstErrors()));
+                            Utils::responseFail($response, sprintf("退出房间失败：%s", current($model->getFirstErrors())));
+                        } else {
+                            Utils::responseSucc($response, null, '退出房间成功');
+                        }
+                        break;
+                    case 'prepare':
+                        //准备比赛
+                        $model = new PrepareForm();
+                        $model->attributes = $data;
+                        if (!$model->save($this->serv)) {
+                            printf("准备比赛失败：%s\n", current($model->getFirstErrors()));
+                            Utils::responseFail($response, sprintf("准备比赛失败：%s", current($model->getFirstErrors())));
+                        } else {
+                            Utils::responseSucc($response, null, '准备比赛成功');
+                        }
+                        break;
+                    case 'start':
+                        //开始比赛
+                        $model = new StartForm();
+                        $model->attributes = $data;
+                        if (!$model->save($this->serv)) {
+                            printf("开始比赛失败：%s\n", current($model->getFirstErrors()));
+                            Utils::responseFail($response, sprintf("开始比赛失败：%s", current($model->getFirstErrors())));
+                        } else {
+                            Utils::responseSucc($response, null, '开始比赛成功');
+                        }
+                        break;
+                    case 'room_list':
+                        //房间列表
+                        $model = new RoomListSearch();
+                        $list = $model->search($this->serv, $this->phoneFdTable);
+                        Utils::responseSucc($response, $list, '获取列表成功');
+                }
+            } catch (\Exception $e) {
+                Utils::responseFail($response, $e->getMessage());
             }
         }
     }

@@ -119,5 +119,6 @@ class RoomController extends BasicController{
 
         return $this->ajaxSuccess($roomNo, '创建成功');
     }
+    
 }
 
