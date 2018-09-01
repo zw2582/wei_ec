@@ -14,86 +14,39 @@ use common\models\User;
  */
 class WeiAuthor extends Component{
     
-    public $appid;
-
-    public $appsecret='f87da08f9e619ab9b95205d2f17d8dfc';
-    
-    public $redirectUri;
+    public $codeUri = '';
     
     public function init() {
         parent::init();
-        if (empty($this->appid)) {
-            throw new UserException('lose required params');
+        if (empty($this->codeUri)) {
+            throw new UserException('lose required params codeUri');
         }
     }
     
-    //用户同意授权，获取code
-    public function getCode($scope) {
-        if (!in_array($scope, ['snsapi_userinfo', 'snsapi_base'])) {
-            throw new UserException('获取code的scope请在【snsapi_userinfo，snsapi_base】中选择');
-        }
-        $code = \Yii::$app->request->get("code");
-        if (is_null($code)) {
-            $redirectUri = $this->redirectUri ? : \Yii::$app->request->hostInfo.'/'.\Yii::$app->request->pathInfo;
-//             $redirectUri = preg_replace('/http:/', 'https:', $redirectUri);
-            //$authlink = 'https://open.weixin.qq.com/connect/oauth2/authorize';
-            $authlink='https://nbfq.site/weiauth.php';
-            $link = sprintf('%s?appid=%s&response_type=code&scope=%s&state=%s&to=weixin#wechat_redirect',
-                $authlink, $this->appid, $scope, urlencode($redirectUri.'|'.$scope));
+    /**
+     * 调用微信接口获取用户信息
+     * 
+     * @author zhouwei@shzhanmeng.com
+     * @copyright 2018年9月1日 上午10:40:30
+     */
+    public function findWeixinUserInfo() {
+        //判断用户获取地址是否存在
+        $getInfoUrl = \Yii::$app->request->get("getinfo_url");
+        if($getInfoUrl){
+            //存在则表示已经拿到微信用户信息
+            $wxUser = file_get_contents($getInfoUrl);
+            $wxUserInfo = json_decode($wxUser, true);
             
+            return $wxUserInfo;
+        } else {
+            //设置回调地址
+            $backUrl = \Yii::$app->request->hostInfo.'/'.\Yii::$app->request->pathInfo;
+            
+            $link= $this->codeUri."?getback_url=".urlencode($backUrl);
             \Yii::info('跳转链接获取code的请求:'.$link, __METHOD__);
             \Yii::$app->response->redirect($link);
-            return [null,null];
+            die;
         }
-        $state = \Yii::$app->request->get("state");
-	\Yii::info('获取到state:'.$state, __METHOD__);
-	$state = explode('|', urldecode($state))[1];
-        \Yii::info('获取到微信认证code：'.$code, __METHOD__);
-        return [$code, $state];
-    }
-    
-    //获取access_token
-    public function getAccessToken($code) {
-        $link = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code';
-        $link = sprintf($link, $this->appid, $this->appsecret, $code);
-        
-        \Yii::info('获取accessToken网页授权:'.$link);
-        $curl = new Curl();
-        $response = $curl->setOptions([
-            CURLOPT_SSL_VERIFYPEER=>0,
-            CURLOPT_SSL_VERIFYHOST=>0
-        ])->get($link);
-        \Yii::info('获取accessToken网页授权response:'.$response);
-        if ($curl->responseCode == 200) {
-	    $response = json_decode($response, true);
-            return [$response['access_token'], $response['openid']];
-        } else {
-            \Yii::error('获取accessToken网页授权失败:'.$response, __METHOD__);
-        }
-    }
-    
-    //根据access_token获取用户信息
-    public function getUserInfoByAccessToken($accessToken, $openId) {
-        if (empty($accessToken) || empty($openId)) {
-            return null;
-        }
-        
-        $link = 'https://api.weixin.qq.com/sns/userinfo?access_token=%s&openid=%s&lang=zh_CN';
-        $link = sprintf($link, $accessToken, $openId);
-        \Yii::info(sprintf('根据access_token获取用户信息:%s', $link), __METHOD__);
-        $curl = new Curl();
-        $response = $curl->setOptions([
-            CURLOPT_SSL_VERIFYPEER=>0,
-            CURLOPT_SSL_VERIFYHOST=>0
-        ])->get($link);
-        \Yii::info(sprintf('根据access_token获取用户信息response:%s', $response), __METHOD__);
-        if ($curl->responseCode != 200) {
-            throw new UserException('据access_token获取用户信息失败:'.$response);
-        }
-        if (isset($response['errcode'])) {
-            throw new UserException('据access_token获取用户信息失败:'.$response['errmsg']);
-        }
-        return json_decode($response,true);
     }
     
     //登录
@@ -105,51 +58,34 @@ class WeiAuthor extends Component{
         if ($test) {
             return $this->loginTest();
         }
-        //1.snsapi_base获取openid
-        list($code, $state) = $this->getCode('snsapi_base');
-        if (empty($code) || empty($state)) {
-            \Yii::info('没有获取到code，state，可能是发生微信跳转，等待回执请求', __METHOD__);
+        
+        //获取微信信息
+        $userInfo = $this->findWeixinUserInfo();
+        if (!$userInfo) {
+            \Yii::error('获取微信用户信息返回null', __METHOD__);
             return false;
         }
-        list($accessToken, $openId) = $this->getAccessToken($code);
-        if ($state == 'snsapi_base') {
-            \Yii::info('接收到snsapi_base回执，判断是否存在user', __METHOD__);
-            $user = User::findOne(['openid'=>$openId, 'status'=>User::STATUS_ACTIVE]);
-            if (empty($user)) {
-                \Yii::info('snsapi_base判断用户不存在，启动snsapi_userinfo认证', __METHOD__);
-		unset($_GET['code']);
-                $this->getCode('snsapi_userinfo');
-                return false;
-            }
-        } elseif ($state == 'snsapi_userinfo') {
-            \Yii::info('接收到snsapi_base回执，获取用户信息', __METHOD__);
-            $userInfo = $this->getUserInfoByAccessToken($accessToken, $openId);
-            if (!$userInfo) {
-                \Yii::error('根据access_token获取用户信息返回null', __METHOD__);
-                return false;
-            }
-            \Yii::info('根据access_token获取用户信息返回：'.json_encode($userInfo), __METHOD__);
-            $user = User::findOne(['openid'=>$userInfo['openid'], 'status'=>User::STATUS_ACTIVE]);
-            if (!$user) {
-                \Yii::info('新增微信用户', __METHOD__);
-                $user = new User();
-                $user->auth_key = '';
-                $user->password_hash = '';
-                $user->email = '';
-                $user->created_at = time();
-                $user->updated_at = time();
-                $user->username = $userInfo['nickname'];
-                $user->openid = $userInfo['openid'];
-                $user->sex = $userInfo['sex'];
-                $user->province = $userInfo['province'];
-                $user->city = $userInfo['city'];
-                $user->country = $userInfo['country'];
-                $user->headimgurl = $userInfo['headimgurl'];
-                $user->privilege = json_encode($userInfo['privilege']);
-                //$user->unionid = $userInfo['unionid'];
-                if (!$user->save()) {
-                    throw new UserException(current($user->getFirstErrors()));
-                }
+        \Yii::info('获取微信用户信息返回：'.json_encode($userInfo), __METHOD__);
+        $user = User::findOne(['openid'=>$userInfo['openid'], 'status'=>User::STATUS_ACTIVE]);
+        if (!$user) {
+            \Yii::info('新增微信用户', __METHOD__);
+            $user = new User();
+            $user->auth_key = '';
+            $user->password_hash = '';
+            $user->email = '';
+            $user->created_at = time();
+            $user->updated_at = time();
+            $user->username = $userInfo['nickname'];
+            $user->openid = $userInfo['openid'];
+            $user->sex = $userInfo['sex'];
+            $user->province = $userInfo['province'];
+            $user->city = $userInfo['city'];
+            $user->country = $userInfo['country'];
+            $user->headimgurl = $userInfo['headimgurl'];
+            $user->privilege = json_encode($userInfo['privilege']);
+            //$user->unionid = $userInfo['unionid'];
+            if (!$user->save()) {
+                throw new UserException(current($user->getFirstErrors()));
             }
         }
         

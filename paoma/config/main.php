@@ -20,7 +20,7 @@ return [
         ],
         'weiauthor' => [
             'class'=>'frontend\models\WeiAuthor',
-            'appid'=>'wx42f761126784f81c',
+            'codeUri'=>'http://qi2.gr68.top/wx/wxauth.php'
         ],
         'user' => [
             'identityClass' => 'common\models\User',
