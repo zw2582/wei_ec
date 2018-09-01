@@ -93,12 +93,7 @@ class WeiAuthor extends Component{
     }
     
     public function loginTest() {
-        $user = new User();
-        $user->username = 'test';
-        $user->sex = 1;
-        $user->id = 1;
-        $user->headimgurl = 'http://img.mp.itc.cn/upload/20170801/afc9309df32944129d0820121bd64c9e_th.jpg';
-        
+        $user = User::findOne(2);
         return \Yii::$app->user->login($user);
     }
 }

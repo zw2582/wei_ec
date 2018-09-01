@@ -1,111 +1,137 @@
-请求数据
-1.连接
-url:127.0.0.1:9501
-参数：
-	source:来源,web:网页端，phone：手机端
-	uuid：uuid
-	
-2.网页认证请求
+******************************服务项目接口******************************
+1.获取当前用户信息
+url:/user/current
+类型：GET
+参数：无
+返回：
+	status:1
+	data:{
+		uid:用户id,
+		uname:用户名称，
+		sex:性别,
+		headimg:用户头像
+	}
+
+2.web端认证后登录接口
+url:/user/web-login
+类型：GET
+参数:
+	uuid:认证id
+返回：
+	status:1.成功，0.失败
+	data:{
+		uid:用户id,
+		uname:用户名称，
+		sex:性别,
+		headimg:用户头像
+	},
+	message:提示信息
+
+连接地址：ws://addr:9502
+******************************swoole服务请求数据接口******************************
+1.网页认证请求（websocket）
 参数：
 	action："auth_request",
 	uuid：uuid
-返回：无返回
+返回:
+	status:1.成功，0.失败
+	message:提示信息
 
-3.认证确认
+2.认证确认（http)
 参数：
 	action:"auth_confirm",
 	uuid:uuid
 	uid:用户id
 返回：
-	status:1,
-	message:"",
-	data:{
-		"action":"auth_confirm",
-		"uuid":uuid,
-		"uid":用户id
-	}
-
-4.摇晃手机比赛中
-参数：
-	action:"play",
-	room_no:房间号,
-	uuid:uuid,
-	count:摇晃次数
-返回：
-	status:1,
-	message:"",
-	data:{
-		"action":"play",
-		"data":[
-			{"member":"score"}
-		],
-		"status":"playing"|"comple",比赛中还是已完成
-	}
+	status:1.成功，0.失败
+	message:提示信息
 	
-5.开始命令
+3.加入房间（http）
 参数：
-	action:"start",
-	uuid:uuid,
-	room_no:房间号,
+	action:"enter",
+	uid:用户id,
+	room_no:房间号
 返回：
-	status:1,
-	message:错误信息,
-	data:{
-		action:"start"
-	}
+	status:1.成功，0.失败
+	message:提示信息
 	
-6.再次准备
+4.退出房间（http）
 参数：
-	action:"prepare",
-	uuid:uuid,
-	room_no:房间号,
+	action:out
+	uid:用户id
 返回：
-	status:1,
-	message:错误信息,
-	data:{
-		action:"prepare"
-	}
-
-返回信息
+	status:1.成功，0.失败
+	message:提示信息
+	
+5.准备房间，仅房主操作（http）
+参数：
+	action:prepare
+	uid:用户id
+	room_no:房间号
+返回：
+	status:1.成功，0.失败
+	message:提示信息
+	
+6.开始比赛，仅房主操作(http)
+参数：
+	action:start
+	uid:用户id
+	room_no:房间号
+返回：
+	status:1.成功，0.失败
+	message:提示信息
+	
+7.摇晃手机(websocket)
+参数：
+	action:play
+	uid:用户id
+	count:摇动的次数，基本每次都是1
+返回：
+	status:1.成功，0.失败
+	message:提示信息
+	
+******************************swoole服务websocket推送数据结构******************************
 1.错误信息
 	status:0,
 	message:错误描述
 	
-2.开始通知
-	status:1,
+2.用户离开通知
+	status:1
 	data:{
-		action:'start'
-	}
-	
-3.摇晃数据
-	status:1,
-	data:{
-		action:'play',
-		data:比赛结果数据
-	}
-	
-4.结束通知
-	status:1,
-	data:{
-		action:'comple'
-	}
-	
-5.准备通知
-	status:1,
-	data:{
-		action:'prepare'
+		action:'exit_room',
+		user:{
+			uid:用户id,
+			uname:用户名称，
+			sex:性别,
+			headimg:用户头像,
+		},
+		uid:用户id
 	}
 
-6.有用户加入房间
-	status:1
+3.用户加入通知
+	status:1,
 	data:{
 		action:'join',
-		data:人员数据
+		user:{
+			uid:用户id,
+			uname:用户名称，
+			sex:性别,
+			headimg:用户头像,
+		},
+		uid:用户id,
+		room_no:加入的房间号
 	}
 	
-7.当前房间用户总数
-	status:1
+4.准备通知
+	status:1,
 	data:{
-		action:'member_count',
-		data:人员总数
+		action:'prepare',
+		uid:房主id
+	}
+	
+5.开始通知
+	status:1,
+	data:{
+		action:'start',
+		uid:房主id
 	}

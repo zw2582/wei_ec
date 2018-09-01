@@ -21,7 +21,7 @@ use yii\helpers\Url;
     
     <script type="text/javascript">
 		var wsaddr = "ws://120.79.30.72:9502";
-		var host = "http://paoma.iillyy.com';
+		var host = "http://paoma.iillyy.com";
     </script>
 </head>
 <body>

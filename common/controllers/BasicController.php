@@ -12,10 +12,17 @@ class BasicController extends Controller{
             return false;
         }
         if (YII_DEBUG) {
-            header('Access-Control-Allow-Origin:http://127.0.0.1:8080');
-            header('Access-Control-Allow-Credentials:true');
-            header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-            header('Access-Control-Allow-Methods:GET,POST,PATCH,PUT,OPTIONS');
+            // 是否存在请求源
+            if(isset($_SERVER["HTTP_ORIGIN"])) {
+                header('Access-Control-Allow-Origin: '.$_SERVER["HTTP_ORIGIN"]);
+            } else {
+                header('Access-Control-Allow-Origin: null');
+            }
+            
+            header('Access-Control-Allow-Methods:OPTIONS, GET, POST');
+            header('Access-Control-Allow-Headers:x-requested-with');
+            header('Access-Control-Max-Age:86400');
+            header('Access-Control-Allow-Credentials: true');
         }
         return true;
     }
@@ -41,7 +48,7 @@ class BasicController extends Controller{
             'status'=>$status,
             'data'=>$data,
             'message'=>$message
-        ]);
+        ], JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
         die;
     }
 }
