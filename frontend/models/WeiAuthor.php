@@ -45,7 +45,7 @@ class WeiAuthor extends Component{
             $link= $this->codeUri."?getback_url=".urlencode($backUrl);
             \Yii::info('跳转链接获取code的请求:'.$link, __METHOD__);
             \Yii::$app->response->redirect($link);
-            die;
+            return null;
         }
     }
     
