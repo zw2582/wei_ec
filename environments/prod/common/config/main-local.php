@@ -4,8 +4,8 @@ return [
         'db' => [
             'class' => 'yii\db\Connection',
             'dsn' => 'mysql:host=localhost;dbname=wei_ec',
-            'username' => 'zhouwei',
-            'password' => '314159',
+            'username' => 'develop',
+            'password' => 'develop',
             'charset' => 'utf8',
         ],
         'mailer' => [
